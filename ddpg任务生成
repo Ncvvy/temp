@@ -1,0 +1,3637 @@
+总结这段英文论文成300字的中文：The data plane consists of the UDs, the network forwarding hardware devices (i.e., the forwarding device in the network communication link, which is omitted in Fig. 1) and the ENs. We set up a set M = {1, 2, 3, ..., m} to represent the ENs with a certain computation power deployed near the micro base stations, and N = {1, 2, 3, ..., n} to represent the UDs. With closer proximity to the UDs, ENs can provide UDs with computation offloading services and faster service response. Additionally, the relevant information of UDs is collected by the EN that chooses to provide services, and then the collected information will be preprocessed. Information preprocessing ensures the authenticity and validity of data and avoids unnecessary waste of resources caused by information redundancy.
+
+The control plane deploys several controllers, including the UD information storage module, the EN control module, and the long-term decision configuration control module. The main function of the control plane is to update the matching rules and transformation rules with the data plane. The UD information storage module stores the basic information of all UDs in the system sent by ENs (i.e., UD location, network topology, computation power, etc.) and forms a complete global view.
+
+The EN control module stores the information related to ENs (i.e., node location, available computation resource, regions, waiting queues, etc.). The long-term decision configuration control module is designed to convert the long-term decision made by the KP into imperative language to program the ENs of the data plane through the south interface, so that the ENs can understand the computation decision made by the KP.
+
+The management plane contains the requirement analysis module and the network operation logs. The requirement analysis module collects the information related to the UD requirements provided by ENs in the data plane (application type, data size, request frequency, request time, continuous time of task request type, etc.) and the global view provided by the control plane. Furthermore, the LSTM-based TRDP method is used to predict the requirements of UDs for network applications due to the continuity of the task types requested by the UD. The importance of requirements analysis lies in providing raw data for training and critical network analysis for the KP, as well as reducing the complexity of knowledge creation. The network operation logs store historical data such as network operation status, network events and the long-term decisions adopted by UDs. The purpose of network operation logs is to provide the necessary data support for the smooth operation of the network and to promote the progress of learning model.
+
+The KP consists of DRL module, long-term decisionmaking module and knowledge base. The core function of KP is to provide necessary management suggestions or decisions for the system through sufficient view and analysis of the network system provided by the control and management plane.
+
+In addition, the process of knowledge generation is obtained by continuous training and learning through DRL module, and the generated knowledge is stored in the knowledge base. When the decision-making encounters similar states and events, the knowledge learned in the knowledge base can be adopted to develop excellent computing decisions. In the KDECN architecture, the KP formulates reasonable computation offloading and computation resource allocation strategies for global UDs rather than individual UDs by considering the impact of one UD decision on subsequent decisions.
+ChatGPT
+这篇论文介绍了一个名为KDECN的网络架构，分为数据平面、控制平面和管理平面三个部分。数据平面包括用户设备（UDs）、网络转发硬件设备和边缘节点（ENs）。ENs通过提供计算卸载服务和更快的服务响应来支持UDs，同时收集相关信息进行预处理以确保数据的真实性和有效性。控制平面部署了UD信息存储模块、EN控制模块和长期决策配置控制模块，用于更新与数据平面相匹配的规则和转换规则。管理平面包含需求分析模块和网络操作日志，需求分析模块通过LSTM-based TRDP方法预测UDs对网络应用的需求。网络操作日志存储历史数据，为网络的平稳运行提供支持。知识平台（KP）由DRL模块、长期决策制定模块和知识库组成，通过DRL模块进行连续培训和学习，并将生成的知识存储在知识库中。KP通过提供对网络系统的充分视图和分析来为系统提供必要的管理建议或决策。KDECN架构旨在通过考虑一个UD的决策对后续决策的影响，为全局UDs而不是个体UDs制定合理的计算卸载和计算资源分配策略。
+
+User
+In this subsection, Analytic Hierarchy Process (AHP) [42] is firstly introduced to select the most appropriate device for sending relevant information and offloading task of UD n among the ENs capable of establishing communication links (ENcom n ). In addition, AHP can be used to elect the most suitable EN in the region to perform the offloading computation task of UD n (ENexe n ). Incidentally, the ENcom n and ENexe n elected by AHP can be the same device.
+
+AHP is a kind of hierarchical weight analysis method to measure which EN can provide better service for UDs. AHP divides decision-related elements into three levels: objective level, criterion level and alternative level. Ultimately, AHP determines the priority of ENs selection according to the weight coefficient of each influencing factor in offloading the computation task, and selects the service node with the highest priority. According to the status of the UD and the requirements of the request task type, this paper takes the communication distance, communication interference and the available computation resources as the evaluation indexes of ENs. UDs pay different attention to evaluation indicators due to different types of computation tasks. Accordingly, in order to find the optimal service node, it is necessary to determine the selected priority of the service node according to the weight of each evaluation index of the task. Subsequently, the process of selecting service node EN by AHP method is introduced.
+
+1) Establishment of AHP model: We describe the problem of electing optimal ENs as a three-level architecture model, with all candidate ENs as alternatives at the bottom; In the middle is the evaluation criterion level, which is the evaluation factor of EN; The top level is the objective level which is UD’s choice of the candidate EN.
+
+2) Establish judgment matrix: Two judgment matrices need to be established, respectively: a) the judgment matrix of the evaluation criteria Y = yi,j is to compare the criteria with each other, that is, to judge the importance of criteria I to criteria J to the objective level; b) the judgment matrix of alternative nodes Z = zi,j , is to compare two alternative nodes and judge the importance of alternative node I to node J to the same judgment criterion. Importance indicators are generally measured on a scale of 1-9 to judge the degree of importance. Nevertheless, due to the subjectivity of the judgment matrix, it may lead to inconsistency and large errors.
+
+Therefore, consistency checking is very important in AHP method. The consistency ratio CR can be used to determine whether the matrix has errors, which can be expressed as
+ChatGPT
+在这个子节中，首先介绍了层次分析法（Analytic Hierarchy Process，AHP）[42]，用于在能够建立通信链接的边缘节点（ENcom n ）中选择最合适的设备发送UD n的相关信息和卸载任务。此外，AHP还可以用于选择在区域内执行UD n的卸载计算任务的最合适的EN（ENexe n ）。顺便提一下，由AHP选出的ENcom n 和ENexe n 可能是同一设备。
+
+AHP是一种层次权重分析方法，用于衡量哪个EN可以为UD提供更好的服务。AHP将与决策相关的元素分为三个层次：目标层、标准层和替代层。最终，AHP根据卸载计算任务中每个影响因素的权重系数确定EN的选择优先级，并选择具有最高优先级的服务节点。根据UD的状态和请求任务类型的要求，本文将通信距离、通信干扰和可用计算资源作为EN的评估指标。由于不同类型的计算任务，UD对评估指标的关注度不同。因此，为了找到最佳的服务节点，需要根据任务的每个评估指标的权重确定服务节点的选择优先级。接下来，介绍了AHP方法通过选择EN的过程。
+
+建立AHP模型： 将选择最佳EN的问题描述为一个三层架构模型，所有候选EN位于底部；中间是评估标准层，即EN的评估因素；顶层是目标层，即UD选择候选EN。
+
+建立判断矩阵： 需要建立两个判断矩阵：a) 评估标准的判断矩阵 Y = yi,j 用于比较标准，即判断标准I对于目标层的标准J的重要性；b) 替代节点的判断矩阵 Z = zi,j ，用于比较两个替代节点并判断替代节点I对于同一评估标准的节点J的重要性。重要性指标通常在1-9的范围内度量，以判断重要性的程度。然而，由于判断矩阵的主观性，可能导致不一致性和较大的误差。
+
+因此，在AHP方法中进行一致性检查非常重要。一致性比率CR可用于确定矩阵是否存在错误，其表达形式可以是
+
+User
+In this subsection, Analytic Hierarchy Process (AHP) [42] is firstly introduced to select the most appropriate device for sending relevant information and offloading task of UD n among the ENs capable of establishing communication links (ENcom n ). In addition, AHP can be used to elect the most suitable EN in the region to perform the offloading computation task of UD n (ENexe n ). Incidentally, the ENcom n and ENexe n elected by AHP can be the same device.
+
+AHP is a kind of hierarchical weight analysis method to measure which EN can provide better service for UDs. AHP divides decision-related elements into three levels: objective level, criterion level and alternative level. Ultimately, AHP determines the priority of ENs selection according to the weight coefficient of each influencing factor in offloading the computation task, and selects the service node with the highest priority. According to the status of the UD and the requirements of the request task type, this paper takes the communication distance, communication interference and the available computation resources as the evaluation indexes of ENs. UDs pay different attention to evaluation indicators due to different types of computation tasks. Accordingly, in order to find the optimal service node, it is necessary to determine the selected priority of the service node according to the weight of each evaluation index of the task. Subsequently, the process of selecting service node EN by AHP method is introduced.
+
+1) Establishment of AHP model: We describe the problem of electing optimal ENs as a three-level architecture model, with all candidate ENs as alternatives at the bottom; In the middle is the evaluation criterion level, which is the evaluation factor of EN; The top level is the objective level which is UD’s choice of the candidate EN.
+
+2) Establish judgment matrix: Two judgment matrices need to be established, respectively: a) the judgment matrix of the evaluation criteria Y = yi,j is to compare the criteria with each other, that is, to judge the importance of criteria I to criteria J to the objective level; b) the judgment matrix of alternative nodes Z = zi,j , is to compare two alternative nodes and judge the importance of alternative node I to node J to the same judgment criterion. Importance indicators are generally measured on a scale of 1-9 to judge the degree of importance. Nevertheless, due to the subjectivity of the judgment matrix, it may lead to inconsistency and large errors.
+
+Therefore, consistency checking is very important in AHP method. The consistency ratio CR can be used to determine whether the matrix has errors, which can be expressed as where λmax is the largest eigenvalue of the judgment matrix, h is the number of evaluation indexes, that is, the order of the judgment matrix. Additionally, RI is the average random consistency index, whose value depends on the number of evaluation indexes, as shown in Table III. When CR < 0.1, the judgment matrix is considered to pass the consistency check.
+
+Otherwise, adjust the matrix until it is consistent.
+
+3) Optimal EN selection: Finally, the weight vector is obtained by calculating the maximum eigenvalue and its corresponding eigenvalue vector. According to these weight vectors, the priority ranking of service nodes and the selection scheme of optimal service EN are obtained.
+
+Next, two types of communication models in the system are introduced. One is the communication between UDs and ENs by establishing wireless links; The other is optical fiber link communication between ENs. The data transmission rate of offloading computation tasks between the UD n and the selected EN m is expressed as follows where W is the channel bandwidth; Bn is the transmission power of the UD, it is assumed that the transmission power of UDs is the same; N0 is the background noise power; Hn,m is the channel gain between the UD n and the EN m; 滑 i∈N,i̸=n BnHi,m represents the channel gain between UDs excluding UD n send data to EN m via wireless channel simultaneously. From Eq.(3), we can draw the conclusion that if the more other devices send data to the same target device EN m through the wireless channel at the same time, which will cause severe interference and the reduction of transmission rate of UD n. In addition, we consider that ENs communicate with each other through optical fiber links, which can maintain stable and fast data transmission even if it is transmitted over long distances. The interference of optical fiber transmission is not considered in this paper, and the transmission rate is rwired.
+ChatGPT
+在这个小节中，首先介绍了层次分析法（Analytic Hierarchy Process，AHP）[42]，用于在能够建立通信链接的边缘节点（ENcom n ）中选择最合适的设备发送UD n的相关信息和卸载任务。此外，AHP还可以用于选择在区域内执行UD n的卸载计算任务的最合适的EN（ENexe n ）。值得一提的是，由AHP选出的ENcom n 和ENexe n 可能是同一设备。
+
+AHP是一种层次权重分析方法，用于衡量哪个EN可以为UD提供更好的服务。AHP将与决策相关的元素分为三个层次：目标层、标准层和替代层。最终，AHP根据卸载计算任务中每个影响因素的权重系数确定EN的选择优先级，并选择具有最高优先级的服务节点。根据UD的状态和请求任务类型的要求，本文将通信距离、通信干扰和可用计算资源作为EN的评估指标。由于不同类型的计算任务，UD对评估指标的关注度不同。因此，为了找到最佳的服务节点，需要根据任务的每个评估指标的权重确定服务节点的选择优先级。接下来，介绍了AHP方法通过选择EN的过程。
+
+建立AHP模型： 将选择最佳EN的问题描述为一个三层架构模型，所有候选EN位于底部；中间是评估标准层，即EN的评估因素；顶层是目标层，即UD选择候选EN。
+
+建立判断矩阵： 需要建立两个判断矩阵：a) 评估标准的判断矩阵 Y = yi,j 用于比较标准，即判断标准I对于目标层的标准J的重要性；b) 替代节点的判断矩阵 Z = zi,j ，用于比较两个替代节点并判断替代节点I对于同一评估标准的节点J的重要性。重要性指标通常在1-9的范围内度量，以判断重要性的程度。然而，由于判断矩阵的主观性，可能导致不一致性和较大的误差。
+
+因此，在AHP方法中进行一致性检查非常重要。一致性比率CR可用于确定矩阵是否存在错误，其表达形式可以是
+�
+�
+=
+�
+max
+−
+ℎ
+ℎ
+−
+1
+CR= 
+h−1
+λ 
+max
+​
+ −h
+​
+ 
+
+其中，
+�
+max
+λ 
+max
+​
+  是判断矩阵的最大特征值，
+ℎ
+h 是评估指标的数量，即判断矩阵的阶数。此外，
+�
+�
+RI 是平均随机一致性指数，其值取决于评估指标的数量，如表 III 所示。当 
+�
+�
+<
+0.1
+CR<0.1 时，认为判断矩阵通过了一致性检查。
+
+否则，需要调整矩阵，直到达到一致性。
+
+最佳EN选择： 最终，通过计算最大特征值及其相应的特征向量，获得权重向量。根据这些权重向量，可以得到服务节点的优先排序和最佳服务EN的选择方案。
+接下来，介绍了系统中两种通信模型。一种是通过建立无线链接进行UD和EN之间的通信；另一种是EN之间进行光纤链路通信。UD n 和选定的EN m 之间卸载计算任务的数据传输速率表示如下：
+�
+wireless
+=
+�
+log
+⁡
+2
+(
+1
++
+�
+�
+�
+�
+,
+�
+�
+0
++
+∑
+�
+∈
+�
+,
+�
+≠
+�
+�
+�
+�
+�
+,
+�
+)
+R 
+wireless
+​
+ =Wlog 
+2
+​
+ (1+ 
+N 
+0
+​
+ +∑ 
+i∈N,i
+
+=n
+​
+ B 
+n
+​
+ H 
+i,m
+​
+ 
+B 
+n
+​
+ H 
+n,m
+​
+ 
+​
+ )
+
+其中，
+�
+W 是信道带宽；
+�
+�
+B 
+n
+​
+  是UD的传输功率，假设所有UD的传输功率相同；
+�
+0
+N 
+0
+​
+  是背景噪声功率；
+�
+�
+,
+�
+H 
+n,m
+​
+  是UD n 和EN m 之间的信道增益；
+∑
+�
+∈
+�
+,
+�
+≠
+�
+�
+�
+�
+�
+,
+�
+∑ 
+i∈N,i
+
+=n
+​
+ B 
+n
+​
+ H 
+i,m
+​
+  表示其他设备通过无线通道同时向目标设备EN m 发送数据引起的信道增益。从公式（3）中可以得出结论，如果其他设备同时通过无线通道向相同目标设备EN m 发送数据，将导致严重的干扰和UD n 传输速率的降低。此外，我们考虑EN之间通过光纤链路进行通信，即使在长距离传输时，也可以保持稳定快速的数据传输。本文不考虑光纤传输的干扰，传输速率为 
+�
+wired
+R 
+wired
+​
+ 。
+
+User
+ Computation Model
+In this subsection, we will introduce the computation
+model. In our scenario, UD n will generate the computation
+task In = (Cn, Dn, T max
+n
+), In ∈ I that needs to be processed
+in real-time. Cn is the number of Central Processing Unit
+(CPU) cycles required for performing computation task
+In; Dn is the data size of offloading computation task In;
+And T
+max
+n denotes the maximum tolerance delay for task
+completion. If the task is not completed within T
+max
+n
+, the
+task is judged to have failed. In addition, we assume that
+the number of CPU cycles required to execute a computation
+task is proportional to the data size of offloading computation
+task. In our scenario, UDs can execute computation tasks
+locally, or choose to offload computation tasks to ENs to
+perform computation tasks instead of themselves. Since
+computation tasks executed locally by UD can reduce the
+system resource load, we consider that computation tasks
+executed locally if the time of tasks executed locally can meet
+the maximum tolerable delay. The AHP method mentioned
+above can select the most appropriate ENcom
+n
+to collect
+the information related to UD offloading, and can also
+provide UDs with computation resources. However, there
+may be a long computation queue of ENcom
+n
+selected by
+UDs, and it may not be the optimal computation decision
+for the ENcom
+n
+to execute the computation task In. Hence,
+ENcom
+n
+can forward the computation task In to the relatively
+idle ENexe
+n
+to perform the computation task instead of the
+UD n. We define K = kn ∈
+濫
+k
+local
+n
+, kENcom
+n
+n , kENexe
+n
+n
+藍
+to
+be the execution scheme choice of UD n. Here, the set
+{local, ENcom
+n
+, ENexe
+n } indicates that computation tasks are
+executed at local, ENcom
+n or by ENcom
+n
+relays computation
+tasks to ENexe
+n
+through optcal fiber links. If kn = k
+ϑ
+n = 1,
+it indicates that UD n chooses ϑ to perform the computation
+task In, and k
+local
+n + k
+ENcom
+n
+n + k
+ENexe
+n
+n ≤ 1, that is, UD can
+only select one device to execute computation task. Next, we
+will focus on the time, energy consumption, and the price of
+renting computation resources of each strategy.
+1) Local Execution: In the situation, if UD n can execute
+computation task In locally to meet the delay tolerance
+constraint, the UD will choose to execute task locally, and
+k
+local
+n = 1. Therefore, the execution time and energy consumption to execute the computation task In of UD n locally
+are respectively calculated as
+T
+Loc
+n = Cn/F CP U
+n
+, (4)
+E
+Loc
+n = Cn × e
+CP U
+n
+, (5)
+U
+local
+n = αln 
+1 + (T
+max
+n − T
+Loc
+n
+)
++
+
+− βELoc
+n
+, (6)
+where the local execution time depends on the computation
+resources of UD n (F
+CP U
+n
+) and the energy consumption
+hinge on the energy consumption per CPU cycle (e
+CP U
+n
+).
+In addition, Eq.(6) is the utility function of UD n executing
+the computation task In locally, where (χ)
++ = max {0, χ},
+which means that the satisfaction of the execution time is kept
+non-negative; α and β are the utility weights of execution
+time and energy consumption, which are used to measure the
+importance of different cost factors.
+2) Computation Offloading: In the circumstance, as the
+execution time for UD n to perform the computation task
+In locally exceeds the maximum tolerable delay, consider
+offloading the task to other devices over a wireless connection.
+Furthermore, each EN has set up a First-Come-First-Serve
+waiting queue to temporarily store computation tasks for subsequent offloads. After the ENcom
+n
+receives the computation
+task In offloaded by UD n, it executes the task locally
+or forwards to ENexe
+n
+through optical fiber link according
+the task execution decision. Similar to [43] and [44], we
+assume that the transmission delay of the computation result
+is ignored, since the data size is small enough.
+a) ENcom
+n performs the computation task:
+In this case, ENcom
+n
+allocates computation resources to
+UD n to perform the task In. The execution time of the
+computation task In depends on the waiting time for the
+computing queue of ENcom
+n
+(T
+ENcom
+n
+W ait ), the rate of transmitting the computation task over wireless link, and the amount
+of computation resource allocated (F
+ENcom
+n
+n ). The energy
+consumption of computation task In performed by ENcom
+n
+is decided by the energy consumption of transmitting data
+of unit size (e
+tran
+n
+). Moreover, UDs need to pay ENcom
+n
+for providing computation resources, which depends on the
+price per unit of computation resources (pEN ). Therefore,
+the execution time, energy consumption and price of ENcom
+n
+to perform the computation task In instead of UD n can be
+expressed as
+ChatGPT
+在这个小节中，介绍了计算模型。在该场景中，UD n 会生成一个需要在实时处理的计算任务 
+�
+�
+=
+(
+�
+�
+,
+�
+�
+,
+�
+max
+�
+)
+I 
+n
+​
+ =(C 
+n
+​
+ ,D 
+n
+​
+ ,T 
+max 
+n
+​
+ 
+​
+ )，其中 
+�
+�
+∈
+�
+I 
+n
+​
+ ∈I。其中，
+�
+�
+C 
+n
+​
+  表示执行计算任务 
+�
+�
+I 
+n
+​
+  需要的中央处理单元（Central Processing Unit，CPU）周期数量；
+�
+�
+D 
+n
+​
+  表示卸载计算任务 
+�
+�
+I 
+n
+​
+  的数据大小；
+�
+max
+�
+T 
+max 
+n
+​
+ 
+​
+  表示任务完成的最大容忍延迟。如果任务在 
+�
+max
+�
+T 
+max 
+n
+​
+ 
+​
+  内未完成，则判定任务失败。此外，我们假设执行计算任务所需的 CPU 周期数量与卸载计算任务的数据大小成正比。在这个场景中，UDs 可以在本地执行计算任务，也可以选择将计算任务卸载到 ENs 进行执行。由于在本地执行的计算任务可以减轻系统资源负载，因此我们考虑如果本地执行的任务的时间可以满足最大容忍延迟，则选择在本地执行计算任务。上文提到的 AHP 方法可以选择最合适的 ENcom_n 来收集与 UD 卸载相关的信息，还可以向 UD 提供计算资源。然而，由 UD 选择的 ENcom_n 可能存在较长的计算队列，并且 ENcom_n 执行计算任务 In 可能不是 ENcom_n 执行计算任务 In 的最佳计算决策。因此，ENcom_n 可以将计算任务 In 转发给相对空闲的 ENexe_n 来执行计算任务，而不是 UD n。我们定义 
+�
+=
+�
+�
+∈
+{
+local
+�
+,
+ENcom
+�
+,
+ENexe
+�
+}
+K=k 
+n
+​
+ ∈{local 
+n
+​
+ ,ENcom 
+n
+​
+ ,ENexe 
+n
+​
+ } 为 UD n 的执行方案选择。这里，集合 {\text{local}, \text{ENcom}_n, \text{ENexe}_n} 表示计算任务在本地执行，由 ENcom_n 执行，或通过光纤链路由 ENcom_n 中继计算任务到 ENexe_n。如果 k_n = k_\theta_n = 1，则表示 UD n 选择 
+�
+θ 执行计算任务 In，而 
+�
+local
+�
++
+�
+ENcom
+�
++
+�
+ENexe
+�
+≤
+1
+k 
+local 
+n
+​
+ 
+​
+ +k 
+ENcom 
+n
+​
+ 
+​
+ +k 
+ENexe 
+n
+​
+ 
+​
+ ≤1，即 UD 只能选择一个设备来执行计算任务。接下来，我们将重点关注每种策略的时间、能耗和租用计算资源的价格。
+
+本地执行： 在这种情况下，如果 UD n 可以在本地执行计算任务 In 以满足延迟容忍约束，那么 UD 将选择在本地执行任务，即 
+�
+local
+�
+=
+1
+k 
+local 
+n
+​
+ 
+​
+ =1。因此，执行计算任务 In 的 UD n 的本地执行时间和能耗分别计算为
+�
+Loc
+�
+=
+�
+�
+�
+CPU
+�
+,
+T 
+Loc 
+n
+​
+ 
+​
+ = 
+F 
+CPU 
+n
+​
+ 
+​
+ 
+C 
+n
+​
+ 
+​
+ ,
+�
+Loc
+�
+=
+�
+�
+×
+�
+CPU
+�
+,
+E 
+Loc 
+n
+​
+ 
+​
+ =C 
+n
+​
+ ×e 
+CPU 
+n
+​
+ 
+​
+ ,
+�
+local
+�
+=
+�
+ln
+⁡
+(
+1
++
+(
+�
+max
+�
+−
+�
+Loc
+�
+)
+)
+−
+�
+�
+Loc
+�
+,
+U 
+local 
+n
+​
+ 
+​
+ =αln(1+(T 
+max 
+n
+​
+ 
+​
+ −T 
+Loc 
+n
+​
+ 
+​
+ ))−βE 
+Loc 
+n
+​
+ 
+​
+ ,
+其中本地执行时间取决于 UD n 的计算资源（
+�
+CPU
+�
+F 
+CPU 
+n
+​
+ 
+​
+ ）以及每个 CPU 周期的能耗（
+�
+CPU
+�
+e 
+CPU 
+n
+​
+ 
+​
+ ）。此外，公式（6）是 UD n 执行计算任务 In 的本地满意度函数，其中 
+(
+�
+)
++
+=
+max
+⁡
+{
+0
+,
+�
+}
+(χ) 
++
+ =max{0,χ}，表示执行时间的满意度保持为非负；
+�
+α 和 
+�
+β 是执行时间和能耗的满意度权重，用于衡量不同成本因素的重要性。
+
+计算卸载： 在这种情况下，如果 UD n 执行计算任务 In 的本地执行时间超过最大容忍延迟，考虑通过无线连接将任务卸载到其他设备。此外，每个 EN 都建立了一个先到先服务的等待队列，用于临时存储计算任务以进行后续卸载。在 ENcom_n 接收到 UD n 卸载的
+
+User
+可以帮我把这段文字变成word文档的格式，我希望你的latex语法我可以直接在powepoint中使用
+ChatGPT
+当你使用 LaTeX 语法时，你可以将其复制粘贴到 PowerPoint 中的 LaTeX 编辑器中。下面是你提供的文本的 LaTeX 格式：
+
+latex
+Copy code
+\section{Computation Model}
+In this subsection, we will introduce the computation
+model. In our scenario, UD $n$ will generate the computation
+task $I_n = (C_n, D_n, T_{\text{max}_n})$, $I_n \in I$ that needs to be processed
+in real-time. $C_n$ is the number of Central Processing Unit
+(CPU) cycles required for performing computation task
+$I_n$; $D_n$ is the data size of offloading computation task $I_n$;
+And $T_{\text{max}_n}$ denotes the maximum tolerance delay for task
+completion. If the task is not completed within $T_{\text{max}_n}$,
+the task is judged to have failed. In addition, we assume that
+the number of CPU cycles required to execute a computation
+task is proportional to the data size of offloading computation
+task. In our scenario, UDs can execute computation tasks
+locally or choose to offload computation tasks to ENs to
+perform computation tasks instead of themselves. Since
+computation tasks executed locally by UD can reduce the
+system resource load, we consider that computation tasks
+executed locally if the time of tasks executed locally can meet
+the maximum tolerable delay. The AHP method mentioned
+above can select the most appropriate EN$_{\text{com}_n}$
+to collect
+the information related to UD offloading, and can also
+provide UDs with computation resources. However, there
+may be a long computation queue of EN$_{\text{com}_n}$
+selected by
+UDs, and it may not be the optimal computation decision
+for the EN$_{\text{com}_n}$
+to execute the computation task $I_n$. Hence,
+EN$_{\text{com}_n}$
+can forward the computation task $I_n$ to the relatively
+idle EN$_{\text{exe}_n}$
+to perform the computation task instead of the
+UD $n$. We define $K = k_n \in \{\text{local}_n, \text{ENcom}_n, \text{ENexe}_n\}$ to
+be the execution scheme choice of UD $n$. Here, the set
+$\{\text{local}, \text{ENcom}_n, \text{ENexe}_n\}$ indicates that computation tasks are
+executed at local, EN$_{\text{com}_n}$, or by EN$_{\text{com}_n}$
+relays computation
+tasks to EN$_{\text{exe}_n}$
+through optical fiber links. If $k_n = k_\theta_n = 1$,
+it indicates that UD $n$ chooses $\theta$ to perform the computation
+task $I_n$, and $k_{\text{local}_n} + k_{\text{ENcom}_n} + k_{\text{ENexe}_n} \leq 1$, that is, UD can
+only select one device to execute computation task. Next, we
+will focus on the time, energy consumption, and the price of
+renting computation resources of each strategy.
+\subsection{Local Execution}
+In the situation, if UD $n$ can execute
+computation task $I_n$ locally to meet the delay tolerance
+constraint, the UD will choose to execute the task locally, and
+$k_{\text{local}_n} = 1$. Therefore, the execution time and energy consumption to execute the computation task $I_n$ of UD $n$ locally
+are respectively calculated as
+\[
+T_{\text{Loc}_n} = \frac{C_n}{F_{\text{CPU}_n}},
+\]
+\[
+E_{\text{Loc}_n} = C_n \times e_{\text{CPU}_n},
+\]
+\[
+U_{\text{local}_n} = \alpha \ln \left(1 + \left(T_{\text{max}_n} - T_{\text{Loc}_n}\right)\right) - \beta E_{\text{Loc}_n},
+\]
+where the local execution time depends on the computation
+resources of UD $n$ ($F_{\text{CPU}_n}$) and the energy consumption
+hinge on the energy consumption per CPU cycle ($e_{\text{CPU}_n}$).
+In addition, Eq.(6) is the utility function of UD $n$ executing
+the computation task $I_n$ locally, where $(\chi)_+ = \max \{0, \chi\}$,
+which means that the satisfaction of the execution time is kept
+non-negative; $\alpha$ and $\beta$ are the utility weights of execution
+time and energy consumption, which are used to measure the
+importance of different cost factors.
+\subsection{Computation Offloading}
+In the circumstance, as the
+execution time for UD $n$ to perform the computation task
+$I_n$ locally exceeds the maximum tolerable delay, consider
+offloading the task to other devices over
+User
+中文的latex表示，我希望是这样的格式：首先给出计算任务的定义，然后解释每个符号代表的意思。紧接着介绍K的含义，说明任务卸载的方式，并给出本地执行和计算卸载的公式表达
+ChatGPT
+好的，以下是按照你的要求整理的 LaTeX 格式的文档：
+
+latex
+Copy code
+\documentclass{article}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\section{计算模型}
+
+在这个小节中，我们将介绍计算模型。在我们的场景中，UD $n$ 生成了一个实时需要处理的计算任务 $I_n = (C_n, D_n, T_{\text{max}_n})$，其中 $I_n \in I$。下面是符号的定义：
+
+\begin{itemize}
+    \item $C_n$：执行计算任务 $I_n$ 所需的中央处理单元（Central Processing Unit，CPU）周期数量。
+    \item $D_n$：卸载计算任务 $I_n$ 的数据大小。
+    \item $T_{\text{max}_n}$：任务完成的最大容忍延迟。
+\end{itemize}
+
+我们假设执行计算任务所需的 CPU 周期数量与卸载计算任务的数据大小成正比。在我们的场景中，UDs 可以在本地执行计算任务，或选择将计算任务卸载到 ENs 进行执行。考虑到在本地执行的计算任务可以减轻系统资源负载，我们假设如果本地执行的任务时间可以满足最大容忍延迟，UD 将选择在本地执行计算任务。
+
+\subsection{任务执行方案}
+
+我们定义 $K = k_n \in \{\text{local}_n, \text{ENcom}_n, \text{ENexe}_n\}$ 为 UD $n$ 的执行方案选择，其中：
+
+\begin{itemize}
+    \item $\text{local}_n$ 表示在本地执行计算任务。
+    \item $\text{ENcom}_n$ 表示通过 EN$_{\text{com}_n}$ 卸载计算任务。
+    \item $\text{ENexe}_n$ 表示通过 EN$_{\text{exe}_n}$ 卸载计算任务。
+\end{itemize}
+
+如果 $k_n = k_\theta_n = 1$，表示 UD $n$ 选择 $\theta$ 来执行计算任务 $I_n$，并且 $k_{\text{local}_n} + k_{\text{ENcom}_n} + k_{\text{ENexe}_n} \leq 1$，即 UD 只能选择一个设备来执行计算任务。
+
+\subsection{本地执行和计算卸载}
+
+\subsubsection{本地执行}
+
+在这种情况下，如果 UD $n$ 可以在本地执行计算任务 $I_n$ 以满足延迟容忍约束，UD 将选择在本地执行任务，即 $k_{\text{local}_n} = 1$。因此，执行计算任务 $I_n$ 的 UD $n$ 的本地执行时间和能耗分别计算为：
+
+\[
+T_{\text{Loc}_n} = \frac{C_n}{F_{\text{CPU}_n}},
+\]
+
+\[
+E_{\text{Loc}_n} = C_n \times e_{\text{CPU}_n},
+\]
+
+\[
+U_{\text{local}_n} = \alpha \ln \left(1 + \left(T_{\text{max}_n} - T_{\text{Loc}_n}\right)\right) - \beta E_{\text{Loc}_n},
+\]
+
+其中本地执行时间取决于 UD $n$ 的计算资源（$F_{\text{CPU}_n}$）和每个 CPU 周期的能耗（$e_{\text{CPU}_n}$）。公式中的 $(\chi)_+ = \max \{0, \chi\}$ 表示执行时间的满意度保持为非负，$\alpha$ 和 $\beta$ 分别是执行时间和能耗的满意度权重，用于衡量不同成本因素的重要性。
+
+\subsubsection{计算卸载}
+
+在这种情况下，如果 UD $n$ 执行计算任务 $I_n$ 的本地执行时间超过最大容忍延迟，考虑通过无线连接将任务卸载到其他设备。
+
+\end{document}
+请注意，这只是一个 LaTeX 格式的起始部分。你可以根据需要进一步扩展或调整。希望对你有所帮助！
+
+User
+我如何吧这段latex嵌入我的ppt中
+ChatGPT
+在 PowerPoint 中嵌入 LaTeX 公式可以通过多种方式实现，以下是其中一种常用的方法：
+
+使用图像：
+
+编写你的 LaTeX 公式并将其保存为图片（PNG、JPEG 等格式）。
+在 PowerPoint 中，选择插入（Insert）->图片（Picture），然后选择保存的 LaTeX 图片文件。
+这是一种简单而直接的方式，但缺点是无法编辑公式。如果需要进一步编辑，你可能需要回到 LaTeX 编辑器中进行修改，然后重新生成图像。
+
+使用插件或在线服务：
+
+有些 PowerPoint 插件或在线服务允许你直接嵌入 LaTeX 公式，并在 PowerPoint 中编辑。
+例如，可以考虑使用插件 MathType 或在线服务如 CodeCogs Equation Editor。
+这些方法中，使用图像的方式是最简单的，但缺点是不够灵活。使用插件或在线服务能够提供更好的编辑体验，但需要确保插件或服务在你的环境中可用。
+
+User
+如何通过mathtype将你上面的这段latex嵌入？mathtype提示我的输入太长
+ChatGPT
+Mathtype是一种很方便的插件，但对于较长的LaTeX公式，可能需要分段输入。以下是一种可能的分段方法：
+
+分段输入：
+
+将LaTeX公式分成逻辑段落，例如每个公式、每个等式或每个符号都是一个段落。
+使用Mathtype的“Insert Inline Equation”或“Insert Display Equation”功能分别插入行内公式或独立公式。
+将每个段落的LaTeX代码粘贴到Mathtype中。
+使用嵌套：
+
+对于较长的LaTeX公式，可以使用Mathtype中的嵌套功能。
+首先，创建一个Mathtype公式框，并在其中输入部分LaTeX代码。
+然后，将另一个Mathtype公式框嵌套到第一个公式框中，并在其中输入另一部分LaTeX代码。
+以此类推，直到输入完整的LaTeX公式。
+尝试分组：
+
+将LaTeX代码分组，然后逐个插入。
+例如，将一部分LaTeX代码括在大括号 {} 中，然后插入Mathtype，再进行下一部分。
+请注意，Mathtype对LaTeX的支持有一些限制，而LaTeX代码的复杂性可能会影响插入的效果。在尝试这些方法时，请注意查看Mathtype的错误或警告消息，以便更好地理解问题所在。
+
+User
+你可以将上面那段latex改变格式，使我更方便的插入到我的ppt中吗
+ChatGPT
+当在 PowerPoint 中插入 LaTeX 公式时，可以考虑使用 MathType 或其他支持 LaTeX 语法的插件。以下是一些调整，使得 LaTeX 公式更容易插入到 PowerPoint 中，并通过 MathType 进行编辑：
+
+latex
+Copy code
+\documentclass{standalone}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{equation*}
+  \begin{aligned}
+    T_{\text{Loc}_n} &= \frac{C_n}{F_{\text{CPU}_n}}, \\
+    E_{\text{Loc}_n} &= C_n \times e_{\text{CPU}_n}, \\
+    U_{\text{local}_n} &= \alpha \ln \left(1 + \left(T_{\text{max}_n} - T_{\text{Loc}_n}\right)\right) - \beta E_{\text{Loc}_n},
+  \end{aligned}
+\end{equation*}
+
+\begin{equation*}
+  \begin{aligned}
+    T_{\text{ENcom}_n} &= T_{\text{ENcom}_n}^{\text{Wait}} + \frac{D_n}{R_{\text{Wireless}_n}}, \\
+    E_{\text{ENcom}_n} &= D_n \times e_{\text{tran}_n} + p_{\text{EN}} \times D_n, \\
+    U_{\text{ENcom}_n} &= \alpha \ln \left(1 + \left(T_{\text{max}_n} - T_{\text{ENcom}_n}\right)\right) - \beta E_{\text{ENcom}_n},
+  \end{aligned}
+\end{equation*}
+
+\end{document}
+上述 LaTeX 代码使用 standalone 文档类，以便生成每个公式为一个单独的页面。你可以将每个公式的页面导出为图片（PNG 或其他格式），然后将这些图片插入到 PowerPoint 中。
+
+这样的做法可能更方便一些，因为每个公式都可以单独处理。你只需将每个公式的图片插入到 PowerPoint 幻灯片中即可。
+
+User
+你可以编译这段latex给我吗？\documentclass{article}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\section{计算模型}
+
+在这个小节中，我们将介绍计算模型。在我们的场景中，UD $n$ 生成了一个实时需要处理的计算任务 $I_n = (C_n, D_n, T_{\text{max}_n})$，其中 $I_n \in I$。下面是符号的定义：
+
+\begin{itemize}
+    \item $C_n$：执行计算任务 $I_n$ 所需的中央处理单元（Central Processing Unit，CPU）周期数量。
+    \item $D_n$：卸载计算任务 $I_n$ 的数据大小。
+    \item $T_{\text{max}_n}$：任务完成的最大容忍延迟。
+\end{itemize}
+
+我们假设执行计算任务所需的 CPU 周期数量与卸载计算任务的数据大小成正比。在我们的场景中，UDs 可以在本地执行计算任务，或选择将计算任务卸载到 ENs 进行执行。考虑到在本地执行的计算任务可以减轻系统资源负载，我们假设如果本地执行的任务时间可以满足最大容忍延迟，UD 将选择在本地执行计算任务。
+
+\subsection{任务执行方案}
+
+我们定义 $K = k_n \in \{\text{local}_n, \text{ENcom}_n, \text{ENexe}_n\}$ 为 UD $n$ 的执行方案选择，其中：
+
+\begin{itemize}
+    \item $\text{local}_n$ 表示在本地执行计算任务。
+    \item $\text{ENcom}_n$ 表示通过 EN$_{\text{com}_n}$ 卸载计算任务。
+    \item $\text{ENexe}_n$ 表示通过 EN$_{\text{exe}_n}$ 卸载计算任务。
+\end{itemize}
+
+如果 $k_n = k_\theta_n = 1$，表示 UD $n$ 选择 $\theta$ 来执行计算任务 $I_n$，并且 $k_{\text{local}_n} + k_{\text{ENcom}_n} + k_{\text{ENexe}_n} \leq 1$，即 UD 只能选择一个设备来执行计算任务。
+
+\subsection{本地执行和计算卸载}
+
+\subsubsection{本地执行}
+
+在这种情况下，如果 UD $n$ 可以在本地执行计算任务 $I_n$ 以满足延迟容忍约束，UD 将选择在本地执行任务，即 $k_{\text{local}_n} = 1$。因此，执行计算任务 $I_n$ 的 UD $n$ 的本地执行时间和能耗分别计算为：
+
+\[
+T_{\text{Loc}_n} = \frac{C_n}{F_{\text{CPU}_n}},
+\]
+
+\[
+E_{\text{Loc}_n} = C_n \times e_{\text{CPU}_n},
+\]
+
+\[
+U_{\text{local}_n} = \alpha \ln \left(1 + \left(T_{\text{max}_n} - T_{\text{Loc}_n}\right)\right) - \beta E_{\text{Loc}_n},
+\]
+
+其中本地执行时间取决于 UD $n$ 的计算资源（$F_{\text{CPU}_n}$）和每个 CPU 周期的能耗（$e_{\text{CPU}_n}$）。公式中的 $(\chi)_+ = \max \{0, \chi\}$ 表示执行时间的满意度保持为非负，$\alpha$ 和 $\beta$ 分别是执行时间和能耗的满意度权重，用于衡量不同成本因素的重要性。
+
+\subsubsection{计算卸载}
+
+在这种情况下，如果 UD $n$ 执行计算任务 $I_n$ 的本地执行时间超过最大容忍延迟，考虑通过无线连接将任务卸载到其他设备。
+
+\end{document}
+ChatGPT
+由于我无法直接运行 LaTeX 代码，我建议你使用本地的 LaTeX 编辑器（如TeXShop、TeXworks、Overleaf等）来编译这段代码。以下是一些步骤：
+
+将提供的 LaTeX 代码复制到一个新的 .tex 文件中，比如 document.tex。
+打开本地的 LaTeX 编辑器，创建一个新项目或新文件。
+将复制的 LaTeX 代码粘贴到编辑器中。
+编译代码以生成 PDF 文件。
+在 Overleaf 等在线编辑器中，你只需将代码粘贴到相应的项目中并点击“编译”按钮即可。在本地编辑器中，通常有一个“编译”或“Build”按钮，点击它将生成 PDF。
+
+生成的 PDF 文件可以在你的计算机上查看，并且你可以将其用作 PowerPoint 中的插入对象。
+
+User
+我希望是这样的格式：首先给出计算任务的定义，然后解释每个符号代表的意思。紧接着介绍K的含义，说明任务卸载的方式，并给出本地执行和计算卸载的公式表达
+ChatGPT
+理解了你的要求，我进行了调整，将 LaTeX 代码重新组织成符合你期望的格式。以下是相应的 LaTeX 代码：
+
+latex
+Copy code
+\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section{计算任务定义}
+
+在这一节中，我们首先给出计算任务的定义，并解释每个符号的含义。
+
+\begin{itemize}
+    \item $I_n = (C_n, D_n, T_{\text{max}_n})$：UD $n$ 生成的实时计算任务，其中
+    \begin{itemize}
+        \item $C_n$：所需 CPU 周期数量，
+        \item $D_n$：卸载数据的大小，
+        \item $T_{\text{max}_n}$：任务完成的最大容忍延迟。
+    \end{itemize}
+\end{itemize}
+
+\section{任务执行方案}
+
+接下来，我们介绍 $K$ 的含义，说明任务卸载的方式，并给出本地执行和计算卸载的公式表达。
+
+\begin{itemize}
+    \item $K = k_n \in \{\text{local}_n, \text{ENcom}_n, \text{ENexe}_n\}$：UD $n$ 的执行方案选择，
+    \begin{itemize}
+        \item $\text{local}_n$：在本地执行计算任务，
+        \item $\text{ENcom}_n$：通过 EN$_{\text{com}_n}$ 卸载计算任务，
+        \item $\text{ENexe}_n$：通过 EN$_{\text{exe}_n}$ 卸载计算任务。
+    \end{itemize}
+    如果 $k_n = k_\theta_n = 1$，表示 UD $n$ 选择 $\theta$ 来执行计算任务 $I_n$，并且 $k_{\text{local}_n} + k_{\text{ENcom}_n} + k_{\text{ENexe}_n} \leq 1$。
+\end{itemize}
+
+\subsection{本地执行}
+
+在本地执行的情况下，如果 UD $n$ 可以在本地执行计算任务 $I_n$ 以满足延迟容忍约束，UD 将选择在本地执行任务。
+
+\begin{align*}
+    T_{\text{Loc}_n} &= \frac{C_n}{F_{\text{CPU}_n}}, \\
+    E_{\text{Loc}_n} &= C_n \times e_{\text{CPU}_n}, \\
+    U_{\text{local}_n} &= \alpha \ln \left(1 + \left(T_{\text{max}_n} - T_{\text{Loc}_n}\right)\right) - \beta E_{\text{Loc}_n}.
+\end{align*}
+
+\subsection{计算卸载}
+
+在计算卸载的情况下，如果 UD $n$ 本地执行计算任务的时间超过最大容忍延迟，可以考虑通过无线连接将任务卸载到其他设备。
+
+% 这里插入计算卸载的公式（与上一段内容对应）
+
+\end{document}
+在这个版本中，我通过分节、分项以及适当的注释来使 LaTeX 代码更清晰，以便你更容易理解和使用。
+
+User
+直接输出，不要使用latex语法
+ChatGPT
+明白了，我将给出纯文本格式的输出，不使用 LaTeX 语法：
+
+计算任务定义：
+
+$I_n = (C_n, D_n, T_{\text{max}_n})$：UD $n$ 生成的实时计算任务，
+$C_n$：所需 CPU 周期数量，
+$D_n$：卸载数据的大小，
+$T_{\text{max}_n}$：任务完成的最大容忍延迟。
+任务执行方案：
+
+$K = k_n \in {\text{local}_n, \text{ENcom}_n, \text{ENexe}_n}$：UD $n$ 的执行方案选择，
+$\text{local}_n$：在本地执行计算任务，
+$\text{ENcom}n$：通过 EN${\text{com}_n}$ 卸载计算任务，
+$\text{ENexe}n$：通过 EN${\text{exe}n}$ 卸载计算任务。
+如果 $k_n = k\theta_n = 1$，表示 UD $n$ 选择 $\theta$ 来执行计算任务 $I_n$，并且 $k_{\text{local}n} + k{\text{ENcom}n} + k{\text{ENexe}_n} \leq 1$。
+本地执行：
+
+在本地执行的情况下，如果 UD $n$ 可以在本地执行计算任务 $I_n$ 以满足延迟容忍约束，UD 将选择在本地执行任务。
+
+$T_{\text{Loc}n} = \frac{C_n}{F{\text{CPU}_n}}$
+$E_{\text{Loc}n} = C_n \times e{\text{CPU}_n}$
+$U_{\text{local}n} = \alpha \ln \left(1 + \left(T{\text{max}n} - T{\text{Loc}n}\right)\right) - \beta E{\text{Loc}_n}$
+计算卸载：
+
+在计算卸载的情况下，如果 UD $n$ 本地执行计算任务的时间超过最大容忍延迟，可以考虑通过无线连接将任务卸载到其他设备。
+
+（在此插入计算卸载的公式，与上一段内容对应）
+
+希望这样的输出更符合你的需求。如果有其他需要，请随时告诉我。
+
+User
+你的格式是latex格式   我希望直接看到公式的样子
+ChatGPT
+非常抱歉出现了误解。以下是直接的文本输出，带有公式的样子：
+
+计算任务定义：
+
+�
+�
+=
+(
+�
+�
+,
+�
+�
+,
+�
+max
+�
+)
+I 
+n
+​
+ =(C 
+n
+​
+ ,D 
+n
+​
+ ,T 
+max 
+n
+​
+ 
+​
+ )：UD 
+�
+n 生成的实时计算任务，
+�
+�
+C 
+n
+​
+ ：所需 CPU 周期数量，
+�
+�
+D 
+n
+​
+ ：卸载数据的大小，
+�
+max
+�
+T 
+max 
+n
+​
+ 
+​
+ ：任务完成的最大容忍延迟。
+任务执行方案：
+
+�
+=
+�
+�
+∈
+{
+local
+�
+,
+ENcom
+�
+,
+ENexe
+�
+}
+K=k 
+n
+​
+ ∈{local 
+n
+​
+ ,ENcom 
+n
+​
+ ,ENexe 
+n
+​
+ }：UD 
+�
+n 的执行方案选择，
+local
+�
+local 
+n
+​
+ ：在本地执行计算任务，
+ENcom
+�
+ENcom 
+n
+​
+ ：通过 EN$_{\text{com}_n}$ 卸载计算任务，
+ENexe
+�
+ENexe 
+n
+​
+ ：通过 EN$_{\text{exe}_n}$ 卸载计算任务。
+如果 k_n = k_\theta_n = 1，表示 UD 
+�
+n 选择 
+�
+θ 来执行计算任务 
+�
+�
+I 
+n
+​
+ ，并且 
+�
+local
+�
++
+�
+ENcom
+�
++
+�
+ENexe
+�
+≤
+1
+k 
+local 
+n
+​
+ 
+​
+ +k 
+ENcom 
+n
+​
+ 
+​
+ +k 
+ENexe 
+n
+​
+ 
+​
+ ≤1。
+本地执行：
+
+在本地执行的情况下，如果 UD 
+�
+n 可以在本地执行计算任务 
+�
+�
+I 
+n
+​
+  以满足延迟容忍约束，UD 将选择在本地执行任务。
+
+�
+Loc
+�
+=
+�
+�
+�
+CPU
+�
+T 
+Loc 
+n
+​
+ 
+​
+ = 
+F 
+CPU 
+n
+​
+ 
+​
+ 
+C 
+n
+​
+ 
+​
+ 
+�
+Loc
+�
+=
+�
+�
+×
+�
+CPU
+�
+E 
+Loc 
+n
+​
+ 
+​
+ =C 
+n
+​
+ ×e 
+CPU 
+n
+​
+ 
+​
+ 
+�
+local
+�
+=
+�
+ln
+⁡
+(
+1
++
+(
+�
+max
+�
+−
+�
+Loc
+�
+)
+)
+−
+�
+�
+Loc
+�
+U 
+local 
+n
+​
+ 
+​
+ =αln(1+(T 
+max 
+n
+​
+ 
+​
+ −T 
+Loc 
+n
+​
+ 
+​
+ ))−βE 
+Loc 
+n
+​
+ 
+​
+ 
+计算卸载：
+
+在计算卸载的情况下，如果 UD 
+�
+n 本地执行计算任务的时间超过最大容忍延迟，可以考虑通过无线连接将任务卸载到其他设备。
+
+（在此插入计算卸载的公式，与上一段内容对应）
+
+希望这样的文本输出更符合你的期望。如果还有其他方面需要调整，请随时告诉我。
+
+User
+C1 indicates that the local computation resources of UD are non-negative. C2 and C3 are the constraints of computation resources allocated by ENcom n and ENexe n to UD n. C4 and C5 are the constraints of total computation resources for ENcom n and ENexe n , respectively. C6 and C7 indicate that the computation task of UD can only be executed on one device.
+
+And C8 is the time-delay constraint of the computation task.
+
+Note that, K and F are decision variables related to UD n. To solve the problem stated in Eq.(16), it is necessary to find the optimal results for the offloading decision vector K = k ϑ n , n ∈ N in each time slot, the computation resource allocation vector F =  F ϑ n |n ∈ N  to maximize the average execution utility of the system. Specifically, the offloading decision variable K is a binary variable, and the computation resource allocation vector F is dynamically changing. It requires formulating large-scale global decisions for computation offloading and resource allocation based on the current state of the network. Furthermore, since current computing decisions affect the formulation of future UD computation task decisions, it is essential to make informed decisions for the current task by considering the predicted task request demands of future UDs. Therefore, the objective function is a mixed integer nonlinear problem and is undoubtedly NP-hard [45]. The feasible set of the problem is not convex, and the complexity exhibits exponential growth with the number of UDs. Due to the limitations of traditional methods in adapting to dynamically changing systems and formulating intelligent decisions for computation offloading and resource allocation, we propose an approach based on reinforcement learning to address the aforementioned problem.翻译这段英文，并总结
+ChatGPT
+以下是翻译：
+
+C1表示UD的本地计算资源是非负的。C2和C3是分配给UD的ENcom n和ENexe n的计算资源的约束。C4和C5是ENcom n和ENexe n的总计算资源的约束。C6和C7表示UD的计算任务只能在一个设备上执行。
+
+C8是计算任务的时间延迟约束。
+
+请注意，K和F是与UD n相关的决策变量。为了解决等式（16）中陈述的问题，在每个时间槽中找到决策向量K = k ϑ n，n ∈ N的最优结果以及最大化系统的平均执行效用的计算资源分配向量F = {F ϑ n | n ∈ N}是必要的。具体而言，卸载决策变量K是一个二进制变量，计算资源分配向量F是动态变化的。它要求基于网络的当前状态制定计算卸载和资源分配的大规模全局决策。此外，由于当前的计算决策会影响未来UD计算任务决策的制定，因此在考虑未来UD的预测任务请求需求时，对当前任务做出明智的决策是必要的。因此，目标函数是一个混合整数非线性问题，无疑是NP难问题[45]。该问题的可行集合不是凸的，并且随着UD数量的增加，复杂性呈指数级增长。由于传统方法在适应动态变化的系统并制定计算卸载和资源分配的智能决策方面存在局限性，因此我们提出了一种基于强化学习的方法来解决上述问题。
+
+总结：上述文本描述了与计算任务卸载和资源分配相关的一系列约束条件（C1-C8），以及问题的复杂性和难解性。为了解决这个问题，文章提出了一种基于强化学习的方法，旨在适应动态变化的系统并做出智能决策。
+
+User
+The content or application with high popularity in a region is most likely to be requested. Hence, most existing work assumes that the popularity of content generally follows Zipf distribution [46]. Considering the dynamic resource requirements, the probability of the UD request application type is time-varying, a pure distribution will not always be realized.
+
+Moreover, requests for the same type of application tend to be continuous for a certain amount of time, e.g., gametype applications often require long-term continuous requests.
+
+Therefore, it is a challenge to accurately predict the UD tasks request quantity in each future time slot and maximize long-term execution utility by optimizing the computation offloading and resource allocation strategies.
+
+For this reason, we proposed a TRDP method on account of spatial-temporal and task request continuity deployed on the management plane. LSTM relies on the cyclically connected subnet to achieve long time dependence, which contains functional modules of the memory unit and gate. The gate control mechanism controls the flow of information between the input, output and the cell memory. LSTM processes the input sequence by adding new information to the memory and controlling the state of information memory, the abandoned state of the old information, and the available state of the current information, thus realizing the prediction that depends on the time-series. Since the UD request task type has the characteristics of continuity, the TRDP method is designed based on LSTM model to train and predict the future UD request task quantity.
+
+Additionally, in order to capture the distribution of requests in different regions, the whole area is divided into several equally sized grids based on functional areas such as industrial, residential, office, and comprehensive regions. We define ω g x (t) to be the count of the request task type x generated by the UDs at time slot t in region g. Moreover, in order to reflect the impact of different tasks on request continuity, we set up a counter to measure the number of time slots for consecutively selecting the same type of task. Since the continuous request time of a task type has an upper limit, the probability of continuously requesting the same task will gradually decrease with the increase of time. The history request task record and related feature data are fed into the LSTM model for training.
+
+With a lot of training, the task request probability p g x (t) of task type x in the region g in time slot t can be calculated and updated according to the task type selected by UDs in a future time slot. The calculation of p g x (t) can be defined as
+ChatGPT
+以下是上述文本的翻译：
+
+在一个地区，内容或应用的高流行很可能会受到请求。因此，大多数现有的研究假设内容的流行程度通常遵循Zipf分布[46]。考虑到动态资源需求，UD请求应用程序类型的概率是时变的，一个纯粹的分布不总是能够实现。
+
+此外，对同一类型应用的请求往往在一段时间内是连续的，例如，游戏类型的应用通常需要长时间的连续请求。
+
+因此，准确预测每个未来时间槽中UD任务请求数量，并通过优化计算卸载和资源分配策略来最大化长期执行效用是一个挑战。
+
+出于这个原因，我们提出了一种考虑时空和任务请求连续性的TRDP方法，部署在管理平面上。LSTM依赖于循环连接的子网络来实现长时依赖性，其中包含内存单元和门的功能模块。门控制机制控制输入、输出和细胞存储之间的信息流。LSTM通过将新信息添加到存储器中并控制信息存储器的状态、废弃旧信息的状态以及当前信息的可用状态来处理输入序列，从而实现依赖于时间序列的预测。由于UD请求任务类型具有连续性的特征，TRDP方法是基于LSTM模型设计的，用于训练和预测未来UD请求任务数量。
+
+此外，为了捕捉不同区域的请求分布，整个区域被分成几个根据工业、居住、办公和综合区域等功能区域大小相等的网格。我们定义 ω g x (t) 为在时间槽 t 中在区域 g 由UD生成的请求任务类型 x 的计数。此外，为了反映不同任务对请求连续性的影响，我们设置一个计数器来测量连续选择相同类型任务的时间槽数量。由于任务类型的连续请求时间有一个上限，随着时间的增加，连续请求相同任务的概率将逐渐减小。将历史请求任务记录和相关特征数据输入LSTM模型进行训练。
+
+通过大量的训练，可以根据UD在未来时间槽中选择的任务类型计算和更新区域 g 中时间槽 t 中任务类型 x 的请求概率 p g x (t)。计算 p g x (t) 的公式可以定义为：
+
+User
+总结这段英文，把他总结成300字的中文：Since the Eq.(16) is NP-hard, it is difficult to effectively maximize long-term average execution utility of the system based on traditional methods such as game theory. Nowadays, DRL has increasingly become a promising method and is widely adopted in various scenarios to tackle problems.
+
+specifically, DRL can solves problems in a human-like way by combining the perception of deep learning and the decisionmaking power of reinforcement learning.
+
+Inspired by the powerful decision-making capacity of DRL, we deploy the DRL module on KP to make long-term decision.
+
+According to the global views and UD demand analysis provided by the control and management planes, the DRL module gets the optimal policy after a lot of training and stores it in the knowledge base, then the policy is continuously updated to adapt to the dynamic changes of the system.
+
+Next, we approximate the optimization problem as MDP, and define the predicted task request quantity expectation and the personalized demands of UDs as the components of state to maximize long-term execution utility.
+
+Firstly, the states, actions and rewards are defined in detail.
+
+a) States: The state space reflects the observed network environment. In our system, two types of parameters are mainly considered, which related to the utility of task execution and the computation resource allocation. The state space st can be expressed as: st =  Hn,m(t), Zn(t), En(t), σn(t), T wait m (t), Fm(t)  , (20) where Hn,m(t) represents the signal to noise of wireless communication between UD n and EN m, which can establish a wireless link; Zn(t) indicates the task type requested by UD n; En(t) represents the expectation of task quantity predicted by LSTM-based TRDP method, so as to reflect the demand for resources of UDs in the future; σn(t) represents the personalized demand of different cost weights by UDs; T wait m (t) is the waiting time for queue release of EN m at the time t; And Fm(t) is the available computation resource of EN m.
+
+b) Actions: According to the observed state of the environment, the agent selects ENcom n or ENexe n elected by AHP method to perform the computation task offloaded by UD n and how many computation resources should be allocated to UDs. Hence, the action space at is given by at = {kn,m(t), fn,m(t)} , (21) where kn,m(t) is the binary discrete action indicating whether ENcom n or ENexe n is selected by UD n as the device to perform the offloading computation task; And fn,m(t) is the computation resources that EN m allocates to UDs, which is a continuous variable.
+
+c) Rewards: In the long-term decision-making problem, the goal is to maximize the average execution utility of the whole system over a long period of time. The long-term reward space can be expressed as Rt = 滑T t γ t r(st, at).
+
+Here, γ ∈ [0, 1] is the discount factor; r(st, at) is the immediate reward obtained by the agent taking action at and it defined as r(st, at) =    punishment, if Tn > T max n , 0, if Tn < T max n , t < T, 1 A 滑T t Un, if Tn < T max n , t = T, (22) where A is the number of the tasks requested by the UDs in time slot T. In order to make the agent better achieve the system goal, we define that when the execution time of the task is greater than the maximum tolerable delay, the agent will get a punishment. Moreover, under the above condition, the immediate reward of the last time slot in an episode is the average utility of the tasks, while the other time slots are 0. The purpose of the immediate reward is to maximize the average utility of the system, not to maximize individual benefits. After UDs have taken actions during the time slot T, the agent calculates the average utility based on the utility function and begins the next episode.
+ChatGPT
+该文指出由于方程（16）是NP-hard问题，传统方法如博弈论难以有效地最大化系统的长期平均执行效用。如今，深度强化学习（DRL）已日益成为一种有前途的方法，被广泛应用于各种场景中来解决问题。
+
+具体而言，DRL通过结合深度学习的感知和强化学习的决策能力以类似人类的方式解决问题。
+
+受到DRL强大的决策能力的启发，我们在KP上部署了DRL模块以做出长期决策。
+
+根据控制和管理平面提供的全局视图和UD需求分析，DRL模块在大量训练后得到最优策略并存储在知识库中，然后策略将持续更新以适应系统的动态变化。
+
+接下来，我们将优化问题近似为MDP，并将预测的任务请求数量期望和UD的个性化需求定义为状态的组成部分，以最大化长期执行效用。
+
+首先，详细定义状态、动作和奖励。
+
+a) 状态：状态空间反映了观察到的网络环境。在我们的系统中，主要考虑与任务执行效用和计算资源分配相关的两类参数。状态空间st可以表示为：st =  Hn,m(t), Zn(t), En(t), σn(t), Twaitm(t), Fm(t) ，其中Hn,m(t)表示UD n和EN m之间无线通信的信噪比，可以建立无线连接；Zn(t)表示UD n请求的任务类型；En(t)表示LSTM-based TRDP方法预测的任务数量期望，以反映UD未来对资源的需求；σn(t)表示UD对不同成本权重的个性化需求；Twaitm(t)是EN m在时间t时的队列释放等待时间；而Fm(t)是EN m的可用计算资源。
+
+b) 动作：根据环境观察状态，智能体选择由AHP方法选定的ENcom n或ENexe n来执行UD n卸载的计算任务，以及分配给UD的计算资源量。因此，动作空间at由at = {kn,m(t), fn,m(t)}给出，其中kn,m(t)是二进制离散动作，指示UD n是否选择ENcom n或ENexe n作为执行卸载计算任务的设备；而fn,m(t)是EN m分配给UD的计算资源，是一个连续变量。
+
+c) 奖励：在长期决策问题中，目标是在长时间内最大化整个系统的平均执行效用。长期奖励空间可以表示为Rt = 滑T t γt r(st, at)。
+
+在这里，γ ∈ [0, 1]是折扣因子；r(st, at)是智能体采取行动at获得的即时奖励，定义为r(st, at) =   punishment，如果Tn > Tmaxn，0，如果Tn < Tmaxn，t < T，1/A 滑T t Un，如果Tn < Tmaxn，t = T，(22)，其中A是时隙T内UD请求的任务数。为了使智能体更好地实现系统目标，我们定义当任务的执行时间大于最大容忍延迟时，智能体将获得惩罚。此外，在上述条件下，一个episode中最后一个时隙的即时奖励是任务的平均效用，而其他时隙的奖励为0。即时奖励的目的是最大化系统的平均效用，而不是最大化个体利益。在UD在时隙T内采取了行动之后，智能体根据效用函数计算平均效用并开始下一个episode。
+
+User
+请问为什么即时奖励要定义为一个episode中最后一个时隙的即时奖励是任务的平均效用
+ChatGPT
+在上述文本中，将即时奖励的定义方式与传统的强化学习问题略有不同。在传统的强化学习问题中，即时奖励通常是在每个时间步骤上都给出的，并且目标是最大化累积奖励。但在这里，根据文本描述，将最后一个时隙的即时奖励定义为任务的平均效用，可能是为了强调整个 episode 的目标是最大化平均效用，而不是单个时隙的奖励。
+
+这种设计选择可能是为了更好地符合问题的特定背景和目标。在某些情况下，系统可能更关心长期平均效用而不是每个时间步的即时奖励。将最后一个时隙的奖励定义为任务的平均效用可能是一种为了更好地反映问题本质和优化目标而采取的策略。
+
+User
+In our scenario, we first judge whether the execution time of the local computation task executed by UD meets the maximum tolerable delay constraint. If so, the computing task is executed locally; Otherwise, L-CORA is executed to formulate the optimal computation offloading and resource allocation policy. The process of L-CORA algorithm is shown in Algorithm 1. The L-CORA algorithm starts by initializing four networks and a replay buffer. Next, according to the LSTM-based TRDP method, the predicted task quantity of UDs in each future time slots are obtained. As a parameter in the state space, the task quantity expectation of the future time slot affects the current computation decision-making and ensures the maximization of the long-term average execution utility. For each episode, the agent selects an action in each time slot t, and the immediate reward and next state are obtained. Afterwards, the four-tuple transition is stored in the replay buffer. As the network parameters are to be updated, the transitions are sampled from the buffer for training. Ultimately, the critic and actor networks, and the corresponding target networks are updated successively, each episode is cycled until the algorithm ends. After the algorithm is completed, the optimized computation offloading and resource allocation policy obtained from training is stored in the knowledge base.
+
+Since the system is dynamic, Algorithm 1 needs to be executed repeatedly at certain intervals to update the computing policy
+ChatGPT
+在我们的场景中，首先判断UD执行的本地计算任务的执行时间是否满足最大容忍延迟约束。如果满足，则在本地执行计算任务；否则，执行L-CORA以制定最优的计算卸载和资源分配策略。L-CORA算法的流程如算法1所示。L-CORA算法通过初始化四个网络和一个重放缓冲区开始。接下来，根据基于LSTM的TRDP方法，获取UD在每个未来时间槽的预测任务数量。作为状态空间中的一个参数，未来时间槽的任务数量期望影响当前的计算决策，并确保最大化长期平均执行效用。对于每个episode，代理在每个时间槽t选择一个动作，并获取即时奖励和下一个状态。随后，将四元组转移存储在重放缓冲区中。随着网络参数的更新，从缓冲区中采样转移进行训练。最终，依次更新评论家和演员网络，以及相应的目标网络，直到算法结束。算法完成后，从训练中获得的优化计算卸载和资源分配策略被存储在知识库中。
+
+由于系统是动态的，需要定期在一定的时间间隔内重复执行算法1以更新计算策略。
+
+User
+30字总结
+ChatGPT
+L-CORA算法根据UD任务需求，利用DRL和LSTM进行计算卸载和资源分配优化，以最大化系统长期执行效用。
+
+User
+In order to verify our LSTM-based TRDP method, we compared it with three other commonly used baseline models, including the Depth Neural Network (DNN) model, the time learning model 1-D convolution and the Gate Recurrent Unit (GRU). Fig. 3 illustrates the prediction error comparison on other baseline models with different batch sizes under the Root Mean Squared Error (RMSE) and Mean Absolute Error (MAE) evaluation indexes. It can be observed that our proposed TRDP method outperforms the other three baseline models in terms of RMSE and MAE index. In general, training efficiency can be improved by increasing batch size. However, when the batch size is 32, the error of the TRDP method is the smallest, and the performance is reduced at larger batch sizes. Although the other three baseline models can capture the spatial-temporal features of data, their performance is inferior to that of the TRDP method in the analysis of large-scale and time-dependent scenarios. The LSTM-based TRDP method solves long-term dependence of spatial-temporal correlation and task demand, and has high performance in analyzing longterm task request demand of large-scale UDs.
+
+Then, we evaluate L-CORA algorithm performance. Specifically, we evaluate the performance of the algorithm using metrics of the system’s average execution utility, execution time, success rate and reward. In addition, we compared with three other baselines, as follows: • Short-term decision (Short-term) [12]: Short-term decision-making is to make computation offloading and resource allocation decisions with the goal of maximizing the execution utility of the current computation task.
+
+Short-term decision describes the computing decisionmaking problem as a computation offloading strategy game, and constructs partial Lagrange function and bisection method to make computation resource allocation scheme.
+
+• DQN-based Algorithm (DQN) [30]: A DQN-based computation offloading and resource allocation algorithm has been implemented. Since the action space of DQN is discrete, we quantify the continuous action in the simulation environment and approximate replace the real value with a finite number of discrete values. Thus we allocated computation resources from the action space into 10 levels in the simulation environment.
+
+• No prediction DDPG (NDDPG) [43]: In order to verify the influence of task request demand prediction on computation offloading and resource allocation scheme formulation, we simulate computation offloading and resource allocation algorithms without predicting UD request demand.
+
+Firstly, Fig. 4 shows the convergence performance of our proposed algorithm under different learning rates. In the LCORA algorithm, the actor network selects the action according to the policy, and the critic network evaluates the performance of the action. The learning rate of the actor and critic network will affect the convergence performance and convergence speed. Intuitively, when the episode is from 0 to 120, the average execution utility of the system rises rapidly.
+
+As the episode exceeds 120, the curve tends to stabilize.
+
+From Fig. 4, it can be observed that when the learning rate is lower, the convergence performance will be better, but at the same time, the convergence speed will be slower. As the learning rate is 10−7 , the convergence performance is better, and the slow convergence speed will also lead to reduced algorithm performance. Therefore, the learning rate of 10−5 is a relatively optimal choice.
+
+Fig. 5 illustrates a comparison of the average execution utility of the system with different numbers of UDs within a single functional region. We conducted computing performance evaluations for 40 to 100 UDs in one functional region, with 5 ENs deployed in this region. Since L-CORA is based on UD task request demand prediction, and aims to maximize long-term average execution utility of the system to develop computation offloading and resource allocation schemes, it shows excellent performance as the number of UDs increases.
+
+With the increase of the number of UDs, the average execution utility of our proposed L-CORA is increased from 2.7% to 35.6% compared with other baselines.
+
+As shown in Fig. 6, the performance of task execution in the system as the number of large-scale UDs changes across regions. We primarily evaluate the performance of the L-CORA algorithm by comparing it with other baseline models in terms of average execution utility, average execution time, and average task execution success rate. We set the number of UDs ranging from 50 to 500 and deployed 24 ENs in the system, which consists of multiple functional regions. It can be observed from the figure that although the increase of the number of UDs will have a certain impact on system computing performance, the L-CORA algorithm can still maximize long-term average execution utility and reduce the task execution time. Due to the limited action space of DQN algorithm, it is difficult to explore better strategies in joint optimization of computation offloading and computation resource allocation. In addition, short-term decisionmaking aims at maximizing the current decision utility, and traditional algorithms are adopted to allocate computation resources, which cannot make decisions to optimize the longterm system performance. Moreover, compared to NDDPG, L-CORA achieves better performance by considering the influence between UD decisions. The numerical results show that compared with other baselines, the average execution utility of the proposed L-CORA improves from 6.8% to 26.5%, the average execution time is reduced by 4.94% to 41.98%, and the average task execution success rate is increased by 1.04%.
+ChatGPT
+为验证LSTM-based TRDP方法，我们将其与三种常用的基线模型进行比较，包括深度神经网络（DNN）模型、时间学习模型1-D卷积和门控循环单元（GRU）。图3展示了在不同批次大小下，基于均方根误差（RMSE）和平均绝对误差（MAE）评估指标的其他基线模型的预测误差比较。可以观察到我们提出的TRDP方法在RMSE和MAE指标方面优于其他三个基线模型。尽管其他三个基线模型可以捕捉数据的时空特征，但在大规模和时变场景的分析中，其性能不及TRDP方法。LSTM-based TRDP方法解决了时空相关性和任务需求的长期依赖性，并在分析大规模UD的长期任务请求需求时表现出色。
+
+接着，我们评估了L-CORA算法的性能。具体来说，我们使用系统的平均执行效用、执行时间、成功率和奖励等指标来评估算法的性能。此外，我们与其他三个基线进行了比较，分别是：
+
+短期决策（Short-term）：将计算决策问题描述为计算卸载策略游戏，使用拉格朗日函数和二分法构建计算资源分配方案。
+基于DQN的算法（DQN）：实现了基于DQN的计算卸载和资源分配算法。由于DQN的动作空间是离散的，我们在模拟环境中将连续动作量化，并用有限数量的离散值近似替代实际值。
+无预测DDPG（NDDPG）：为了验证任务请求需求预测对计算卸载和资源分配方案制定的影响，我们在没有预测UD请求需求的情况下模拟计算卸载和资源分配算法。
+我们首先根据UD本地计算任务的执行时间是否符合最大容忍延迟约束来判断情景。如果是，就在本地执行计算任务；否则，执行L-CORA以制定最佳的计算卸载和资源分配策略。L-CORA算法的过程如算法1所示。L-CORA算法通过初始化四个网络和一个重放缓冲区开始。接下来，根据基于LSTM的TRDP方法，获取UD在每个未来时间槽的预测任务数量。作为状态空间中的一个参数，未来时间槽的任务数量期望影响当前计算决策，确保最大化长期平均执行效用。对于每个episode，代理在每个时间槽t选择一个动作，获取即时奖励和下一个状态。然后，将四元组转移存储在重放缓冲区中。随着网络参数的更新，从缓冲区中对转移进行采样进行训练。最终，依次更新评论家和演员网络以及相应的目标网络，每个episode循环一次，直到算法结束。算法完成后，从训练中获得的优化计算卸载和资源分配策略存储在知识库中。
+
+由于系统是动态的，算法1需要定期执行，以在一定间隔内更新计算策略。
+
+User
+As shown in Fig. 6, the performance of task execution in the system as the number of large-scale UDs changes across regions. We primarily evaluate the performance of the L-CORA algorithm by comparing it with other baseline models in terms of average execution utility, average execution time, and average task execution success rate. We set the number of UDs ranging from 50 to 500 and deployed 24 ENs in the system, which consists of multiple functional regions. It can be observed from the figure that although the increase of the number of UDs will have a certain impact on system computing performance, the L-CORA algorithm can still maximize long-term average execution utility and reduce the task execution time. Due to the limited action space of DQN algorithm, it is difficult to explore better strategies in joint optimization of computation offloading and computation resource allocation. In addition, short-term decisionmaking aims at maximizing the current decision utility, and traditional algorithms are adopted to allocate computation resources, which cannot make decisions to optimize the longterm system performance. Moreover, compared to NDDPG, L-CORA achieves better performance by considering the influence between UD decisions. The numerical results show that compared with other baselines, the average execution utility of the proposed L-CORA improves from 6.8% to 26.5%, the average execution time is reduced by 4.94% to 41.98%, and the average task execution success rate is increased by 1.04%.
+
+In addition, Fig. 7 (a) shows the influence of the number of EN in the region on the average execution utility of the system. We conducted experiments by fixing the number of UDs at 100 within a single functional region and varying the deployment of ENs from 5 to 17. It can be observed that with the increase of the number of EN, the average execution utility of the system shows an upward trend. This is because the increase in the number of EN will increase the computation resources provided by the region for UD to reduce the task execution time. We set that there are 100 UDs in this region, as the number of EN is 5, L-CORA increases by 13% to 16% compared with other algorithms; When the number of EN is 17, the average execution utility of our algorithm L-CORA is 9.4% to 16.6% higher than other algorithms.
+
+The experimental results show that our proposed algorithms can formulate excellent long-term computation offloading and resource allocation schemes to maximize the execution utility of the system in the case of changing available computation resources.
+
+In Fig. 7 (b) and 7 (c), we examine the impact of offloaded data size and the number of CPU cycles changed simultaneously on the system average execution utility in the four models. In the simulation, we set a fixed number of 100 UDs and deployed 8 ENs within a single functional area, and we varied the offloaded data size and the number of CPU processing cycles respectively. It can be observed in Fig. 7 (b) that the increase of data quantity affects the network transmission delay and energy consumption, thus reducing the execution utility of computation offloading. The L-CORA algorithm makes current computing decisions based on the future task requests of UDs, which enables the system to explore better performance to the maximum extent, thus ensuring the QoS of the system. The numerical results show that the average execution utility of L-CORA increases by 63.6% compared with other algorithms. Fig. 7 (c) illustrates that with the change of the number of CPU cycles required to perform tasks, it can be observed that the average execution utility of the system presents a downward trend. The reason is that the increase of task size affects the execution time of the task, and the proposed L-CORA algorithm can reasonably allocate computation resources for UDs under different task sizes, thus ensuring the system service performance. The data shows that the average execution utility of our proposed LCORA is increased by 7.3% compared with other algorithms.
+ChatGPT
+如图6所示，随着大规模UD数量在各个区域的变化，系统中任务执行的性能也在变化。我们主要通过与其他基线模型在平均执行效用、平均执行时间和平均任务执行成功率方面的比较来评估L-CORA算法的性能。我们将UD数量设置在50到500之间，在系统中部署了24个EN，该系统由多个功能区域组成。从图中可以看出，尽管UD数量的增加会对系统计算性能产生一定影响，但L-CORA算法仍然可以最大化长期平均执行效用并减少任务执行时间。由于DQN算法的动作空间有限，难以在计算卸载和计算资源分配的联合优化中探索更好的策略。此外，短期决策旨在最大化当前决策效用，并采用传统算法分配计算资源，无法做出优化长期系统性能的决策。此外，与NDDPG相比，L-CORA通过考虑UD决策之间的影响实现了更好的性能。数值结果显示，与其他基线相比，所提出的L-CORA的平均执行效用提高了6.8%至26.5%，平均执行时间减少了4.94%至41.98%，平均任务执行成功率提高了1.04%。
+
+此外，图7（a）显示了区域内EN数量对系统平均执行效用的影响。我们通过在单个功能区域内将UD数量固定为100，同时在5到17之间变化EN的部署来进行实验。可以观察到，随着EN数量的增加，系统的平均执行效用呈上升趋势。这是因为EN数量的增加将增加区域为UD提供的计算资源，以减少任务执行时间。我们设置该区域有100个UD，当EN数量为5时，与其他算法相比，L-CORA增加了13%至16%；当EN数量为17时，我们的算法L-CORA的平均执行效用比其他算法高9.4%至16.6%。
+
+实验结果表明，我们提出的算法在可用计算资源变化的情况下能够制定出色的长期计算卸载和资源分配方案，以最大程度地提高系统的执行效用。
+
+在图7（b）和7（c）中，我们研究了卸载数据量和同时更改的CPU周期数量对系统平均执行效用的影响。在模拟中，我们在单个功能区域内设置了固定数量的100个UD，并部署了8个EN，然后分别改变了卸载的数据量和CPU处理周期的数量。从图7（b）中可以观察到，数据量的增加影响网络传输延迟和能耗，从而降低计算卸载的执行效用。L-CORA算法基于UD未来任务请求做出当前计算决策，使系统能够最大程度地探索更好的性能，从而确保系统的服务质量。数值结果显示，与其他算法相比，L-CORA的平均执行效用提高了63.6%。图7（c）说明了随着执行任务所需的CPU周期数量的变化，系统平均执行效用呈下降趋势。原因是任务大小的增加影响任务的执行时间，而提出的L-CORA算法可以合理地为不同任务大小的UD分配计算资源，从而确保系统的服务性能。数据显示，与其他算法相比，我们提出的L-CORA的平均执行效用增加了7.3%。
+
+User
+In this paper, we innovatively propose the KDECN architecture to better provide computing services for large-scale IoT UDs. In addition, considering that the making of a computation decision has a certain impact on the making of subsequent computation offloading decisions, we propose LSTM-based TRDP method deployed on the management plane. TRDP method can predict and calculate the expectation of requested task quantity in each future time slot, which can provide the KP with necessary UD data analysis and prediction. In order to maximize long-term average execution utility of the system, we propose the L-CORA algorithm deployed on KP. L-CORA algorithm considers the future task request and personalized demand for task execution cost of UDs to formulate the optimal computation offloading and computation resource allocation scheme. Our proposed KDECN architecture and L-CORA algorithm can solve the complex problem of large-scale UD computation decision-making, and better mediate the target conflict between UDs and operators in the system. Numerical results show that our proposed L-CORA can effectively improve the average execution utility of the system.
+ChatGPT
+本文创新性地提出了KDECN架构，以更好地为大规模物联网设备提供计算服务。此外，考虑到计算决策对后续计算卸载决策的影响，我们在管理平面上提出了基于LSTM的TRDP方法。TRDP方法可以预测和计算每个未来时间槽中请求的任务数量的期望，从而为KP提供必要的UD数据分析和预测。为了最大化系统的长期平均执行效用，我们提出了在KP上部署的L-CORA算法。L-CORA算法考虑了未来任务请求和UD对任务执行成本的个性化需求，以制定最佳的计算卸载和计算资源分配方案。我们提出的KDECN架构和L-CORA算法可以解决大规模UD计算决策的复杂问题，并更好地调解系统中UD和运营商之间的目标冲突。数值结果显示，我们提出的L-CORA能够有效提高系统的平均执行效用。
+
+User
+我需要你翻译的更加专业化
+ChatGPT
+本文创新性地提出了基于大规模物联网设备（UDs）的计算服务的Kernel-Driven Edge Computing Network（KDECN）架构。在考虑计算决策对后续计算卸载决策的影响时，我们引入了一种在管理平面上部署的Long Short-Term Memory-based Task Request Demand Prediction（LSTM-based TRDP）方法。TRDP方法能够预测和计算每个未来时间槽中请求的任务数量的期望，为Knowledge Plane（KP）提供必要的UD数据分析和预测。
+
+为了最大化系统的长期平均执行效用，我们提出了在KP上部署的Long-Term Computation Offloading and Resource Allocation（L-CORA）算法。L-CORA算法充分考虑了未来任务请求以及UD对任务执行成本的个性化需求，以制定出最佳的计算卸载和计算资源分配方案。我们的KDECN架构和L-CORA算法有效地解决了大规模UD计算决策的复杂问题，更好地调解了系统中UD和运营商之间的目标冲突。数值结果表明，我们提出的L-CORA能够显著提高系统的平均执行效用。
+
+User
+DDPG深度强化学习中目标网络是什么
+ChatGPT
+在深度强化学习中，特别是在Deep Deterministic Policy Gradient（DDPG）算法中，目标网络（Target Network）是一种用于稳定训练的技术。DDPG是一种用于解决连续动作空间问题的强化学习算法，它结合了深度学习和确定性策略梯度方法。
+
+目标网络的作用是减缓更新策略网络（Actor）和值函数网络（Critic）参数的过程，以提高算法的稳定性。具体而言，DDPG中通常包含两组网络：当前网络和目标网络。
+
+当前网络（Current Network）：
+
+Actor（策略网络）： 负责输出动作的网络。
+Critic（值函数网络）： 评估状态-动作对的价值的网络。
+目标网络（Target Network）：
+
+包含目标Actor和目标Critic，其参数是通过软更新（soft update）方式从当前网络中得到的，而不是直接复制。
+目标网络的参数更新相对缓慢，只有在一定的时间步骤之后才会更新。
+软更新的过程通常用下面的公式表示：
+
+�
+target
+←
+�
+�
+current
++
+(
+1
+−
+�
+)
+�
+target
+θ 
+target
+​
+ ←τθ 
+current
+​
+ +(1−τ)θ 
+target
+​
+ 
+
+其中，
+�
+current
+θ 
+current
+​
+  和 
+�
+target
+θ 
+target
+​
+  分别表示当前网络和目标网络的参数，
+�
+τ 是软更新的参数，通常取一个较小的值，例如0.001。
+
+目标网络的引入有助于平稳训练，因为它使得目标值的计算相对稳定，减少了训练中的波动和震荡。这是通过减小当前网络和目标网络之间的参数差异，从而减缓目标值的变化，使得学习更加可靠。
+
+User
+请你给我一个带有目标网络的DDPG的训练流程
+ChatGPT
+DDPG（Deep Deterministic Policy Gradient）是一种深度强化学习算法，适用于解决连续动作空间问题。以下是带有目标网络的DDPG的基本训练流程：
+
+初始化网络参数：
+
+初始化当前网络的Actor（策略网络）和Critic（值函数网络）。
+初始化目标网络的Actor和Critic，其参数与当前网络相同。
+定义经验回放缓冲区：
+
+创建一个经验回放缓冲区，用于存储Agent的经验元组 
+(
+�
+,
+�
+,
+�
+,
+�
+′
+,
+�
+�
+�
+�
+)
+(s,a,r,s 
+′
+ ,done)。
+�
+s 表示当前状态，
+�
+a 表示动作，
+�
+r 表示奖励，
+�
+′
+s 
+′
+  表示下一个状态，
+�
+�
+�
+�
+done 表示任务是否完成。
+设定超参数：
+
+设置学习率、批处理大小、折扣因子等超参数。
+设置软更新的参数 
+�
+τ。
+训练过程：
+
+在每个时间步骤，Agent执行以下操作：
+
+从当前状态 
+�
+s 中使用当前网络的Actor选择动作 
+�
+a。
+执行动作 
+�
+a，观察奖励 
+�
+r 和下一个状态 
+�
+′
+s 
+′
+ 。
+将经验元组 
+(
+�
+,
+�
+,
+�
+,
+�
+′
+,
+�
+�
+�
+�
+)
+(s,a,r,s 
+′
+ ,done) 存储到经验回放缓冲区。
+从经验回放缓冲区中采样一批数据进行训练。
+更新Critic网络：
+
+使用当前网络计算当前状态-动作对的Q值（
+�
+(
+�
+,
+�
+)
+Q(s,a)）。
+使用目标网络计算下一个状态的Q值（
+�
+target
+(
+�
+′
+,
+�
+target
+(
+�
+′
+)
+)
+Q 
+target
+​
+ (s 
+′
+ ,π 
+target
+​
+ (s 
+′
+ ))）。
+计算Critic的损失，例如使用均方误差损失。
+更新当前网络的Critic参数，采用梯度下降法。
+更新Actor网络：
+
+使用当前网络计算当前状态的动作（
+�
+(
+�
+)
+π(s)）。
+计算Actor的策略梯度。
+更新当前网络的Actor参数，采用梯度上升法。
+软更新目标网络：
+
+使用软更新公式更新目标网络的参数。
+重复步骤4-7直到收敛：
+
+重复执行步骤4-7，直到算法收敛或达到预定的训练步数。
+这个基本流程包含了DDPG算法的核心思想，其中经验回放缓冲区和目标网络的使用有助于提高算法的稳定性和收敛性。在实践中，可能需要进行调整和优化，例如引入策略延迟更新等技巧以提高性能。
+
+User
+好的  我希望在上述的基础上加入LSTM网络来预测未来用户请求任务量，通过计算预测任务量期望值也作为一个系统的状态信息加入强化学习中，我希望你能帮我设计一下这个流程
+ChatGPT
+当将LSTM网络用于预测未来用户请求任务量并将其集成到DDPG中时，您的流程将略有变化。以下是一个整体框架，其中加入了LSTM网络：
+
+初始化网络参数：
+
+初始化当前网络的Actor和Critic。
+初始化目标网络的Actor和Critic，与当前网络参数相同。
+初始化LSTM网络的参数。
+定义经验回放缓冲区：
+
+创建经验回放缓冲区，存储经验元组 
+(
+�
+,
+�
+,
+�
+,
+�
+′
+,
+�
+�
+�
+�
+)
+(s,a,r,s 
+′
+ ,done)。
+定义LSTM网络：
+
+设计并初始化LSTM网络，用于任务请求量的时间序列预测。
+训练LSTM网络：
+
+使用历史任务请求数据训练LSTM网络。
+定期更新LSTM网络参数。
+训练过程：
+
+在每个时间步，Agent执行以下操作：
+
+从当前状态 
+�
+s 中使用当前网络的Actor选择动作 
+�
+a。
+执行动作 
+�
+a，观察奖励 
+�
+r 和下一个状态 
+�
+′
+s 
+′
+ 。
+将经验元组 
+(
+�
+,
+�
+,
+�
+,
+�
+′
+,
+�
+�
+�
+�
+)
+(s,a,r,s 
+′
+ ,done) 存储到经验回放缓冲区。
+使用LSTM网络预测未来任务请求量，并将预测的期望值作为状态信息加入当前状态 
+�
+s 中。
+更新Critic网络：
+
+计算Critic的损失，考虑预测的期望任务请求量。
+更新当前网络的Critic参数。
+更新Actor网络：
+
+计算Actor的策略梯度，考虑预测的期望任务请求量。
+更新当前网络的Actor参数。
+软更新目标网络：
+
+使用软更新公式更新目标网络的参数。
+重复步骤4-8直到收敛：
+
+重复执行步骤4-8，直到算法收敛或达到预定的训练步数。
+这个流程结合了DDPG强化学习和LSTM时间序列预测，使系统能够根据预测的未来任务请求量做出更为智能的决策。请注意，LSTM网络的训练和预测过程是额外的步骤，需要定期更新以适应系统的动态变化。这个流程的实现可能需要一些调整和细化，具体取决于问题的复杂性和实际应用场景。
+
+User
+你可以帮我生成一份标准的论文中的算法流程图吗  英文的
+ChatGPT
+当涉及到生成论文中的算法流程图时，通常使用专业的图形工具（如TikZ LaTeX包）或者图形设计软件（如Adobe Illustrator，Inkscape等）。这样可以确保图形的质量和专业性。由于当前环境不支持图形生成，我将提供一个基本的LaTeX代码示例，您可以将其粘贴到LaTeX环境中运行，然后使用合适的LaTeX编辑器（如TeXShop、Overleaf等）生成PDF。
+
+latex
+Copy code
+\documentclass{article}
+\usepackage{tikz}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{shapes.geometric, arrows}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\begin{document}
+
+\begin{tikzpicture}[node distance=2cm]
+
+\node (start) [startstop] {Initialization};
+\node (buffer) [process, below of=start] {Define Experience Buffer};
+\node (lstm) [process, below of=buffer] {Initialize LSTM Network};
+\node (train_lstm) [process, below of=lstm] {Train LSTM with Historical Data};
+
+\node (mainloop) [process, below of=train_lstm] {Main Training Loop};
+\node (action) [process, below of=mainloop] {Select Action};
+\node (execute) [process, below of=action] {Execute Action};
+\node (observe) [process, below of=execute] {Observe Reward and Next State};
+\node (store) [process, below of=observe] {Store Experience in Buffer};
+\node (predict) [process, below of=store] {Predict Future Task Requests with LSTM};
+\node (update_critic) [process, below of=predict] {Update Critic Network};
+\node (update_actor) [process, below of=update_critic] {Update Actor Network};
+\node (update_target) [process, below of=update_actor] {Soft Update Target Networks};
+
+\node (converge) [startstop, below of=update_target] {Convergence};
+
+\draw [arrow] (start) -- (buffer);
+\draw [arrow] (buffer) -- (lstm);
+\draw [arrow] (lstm) -- (train_lstm);
+\draw [arrow] (train_lstm) -- (mainloop);
+\draw [arrow] (mainloop) -- (action);
+\draw [arrow] (action) -- (execute);
+\draw [arrow] (execute) -- (observe);
+\draw [arrow] (observe) -- (store);
+\draw [arrow] (store) -- (predict);
+\draw [arrow] (predict) -- (update_critic);
+\draw [arrow] (update_critic) -- (update_actor);
+\draw [arrow] (update_actor) -- (update_target);
+\draw [arrow] (update_target) -- (converge);
+
+\end{tikzpicture}
+
+\end{document}
+此示例使用TikZ LaTeX包创建了一个简单的算法流程图。您可以根据自己的需求修改和调整这个示例。请确保您的LaTeX环境中已经安装了TikZ包。
+
+User
+不   你可以使用伪代码描述上述过程，我需要将这段算法示意图粘贴进我的论文中
+ChatGPT
+当然可以！以下是上述过程的伪代码描述：
+
+plaintext
+Copy code
+Initialize Experience Buffer
+Initialize LSTM Network
+Train LSTM with Historical Data
+
+Repeat until Convergence:
+    Select Action using Actor Network
+    Execute Action
+    Observe Reward and Next State
+    Store Experience in Buffer
+    Predict Future Task Requests with LSTM
+    Update Critic Network
+    Update Actor Network
+    Soft Update Target Networks
+
+Convergence
+您可以将这段伪代码粘贴到您的论文中，并根据需要进行格式调整。希望这符合您的需求，如果有其他方面需要调整，请随时告诉我。
+
+User
+帮我分析一下这个网络：from __future__ import print_function
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+
+from system_paras import *
+
+print('tensorflow version:', tf.__version__)
+print('keras version:', tf.keras.__version__)
+
+
+# DNN network for memory
+class MemoryDNN:
+    def __init__(
+        self,
+        net,
+        kernal_size = 4,
+        learning_rate = 0.01,
+        training_interval=10, 
+        batch_size=100, 
+        memory_size=1000,
+        loss_compute_interval=10,
+        epochs = 1,
+        output_graph=False
+    ):
+
+        self.net = net                              # the size of the DNN, e.g., net = [num_users*kernal_size, 256, 128, num_users*2]
+        self.kernal_size = kernal_size,
+        self.training_interval = training_interval      # learn every #training_interval
+        self.lr = learning_rate
+        self.batch_size = batch_size
+        self.memory_size = memory_size
+        self.loss_compute_interval = loss_compute_interval
+        self.epochs = epochs
+        
+        # store all binary actions
+        self.enumerate_actions = []
+
+        # store # memory entry
+        self.memory_counter = 0
+
+        # store training cost
+        self.cost_his = []
+        
+        # test loss
+        self.test_loss_memory = np.zeros(loss_compute_interval)
+        self.test_cost_his = []
+
+        # initialize zero memory [h, m]
+        self.memory = np.zeros((self.memory_size, self.net[0] + self.net[-1]))  # save the input and output of the DNN in the memory
+
+        # construct memory network
+        self._build_net()
+        
+
+    def _build_net(self):
+        kz = int(self.kernal_size[0])
+        self.model = keras.Sequential([
+                    layers.Conv1D(32, kz, activation='relu', input_shape=(int(self.net[0]/kz), kz)), # kz = kernal size
+                    layers.Conv1D(64, 2, activation='relu'),        
+                    layers.Conv1D(128, 2, activation='relu'),       
+                    layers.Flatten(),
+                    layers.Dense(128, activation='relu'),  
+                    layers.Dense(64, activation='relu'),
+                    layers.Dense(self.net[-1], activation='sigmoid')
+                ])
+        # self.model = keras.Sequential([
+        #             layers.Conv1D(32, kz, activation='relu', input_shape=(int(self.net[0]/kz), kz)), # first Conv1D with 32 channels and kernal size kz
+        #             layers.Conv1D(64, 2, activation='relu'), # second Conv1D with 64 channels and kearnal size kz
+        #             layers.Conv1D(64, 2, activation='relu'), # second Conv1D with 64 channels and kearnal size 2
+        #             layers.Flatten(),
+        #             layers.Dense(64, activation='relu'),
+        #             layers.Dense(self.net[-1], activation='sigmoid')
+        #             # layers.Dense(self.net[1], activation='relu'),  # the first hidden layer
+        #             # layers.Dense(self.net[2], activation='relu'),  # the second hidden layer
+        #             # layers.Dense(self.net[-1], activation='sigmoid')  # the output layer
+        #         ])
+
+        self.model.compile(optimizer=keras.optimizers.Adam(learning_rate=self.lr), 
+                           loss=tf.losses.binary_crossentropy, 
+                           metrics=['accuracy']
+                           )
+
+
+    def encode(self, h, m, m_pred):
+        """
+        h : input of the DNN, shape = (self.net[0],)
+        m : the optimal action, shape = (self.net[-1],)
+        m_pred : output of the DNN, shape = (self.net[-1],)
+        """
+        # remember the test loss 
+        idx0 = self.memory_counter % self.loss_compute_interval
+        bce = tf.losses.BinaryCrossentropy()
+        self.test_loss_memory[idx0] = bce(m, m_pred).numpy()
+        # test_loss_tmp = -(m * np.log(m_pred) + (1 - m) * np.log(1 - m_pred))
+        
+        # replace the old memory with new memory
+        idx = self.memory_counter % self.memory_size
+        self.memory[idx, :] = np.hstack((h, m))
+        self.memory_counter += 1
+        
+        # train the DNN after every training_interval slots
+        # if self.memory_counter> self.memory_size / 2 and self.memory_counter % self.training_interval == 0:
+        if self.memory_counter > 0 and self.memory_counter % self.training_interval == 0:
+            self.learn()
+            if self.memory_counter > self.loss_compute_interval:
+                self.test_cost_his.append(np.mean(self.test_loss_memory))
+            else:
+                self.test_cost_his.append(np.mean(self.test_loss_memory[:self.memory_counter]))
+               
+        
+    def learn(self): 
+        # sample batch memory from all memory
+        if self.memory_counter > self.memory_size:
+            sample_index = np.random.choice(self.memory_size, size=self.batch_size)
+        else:
+            sample_index = np.random.choice(self.memory_counter, size=self.batch_size)
+        batch_memory = self.memory[sample_index, :]
+        
+        h_train = batch_memory[:, 0: self.net[0]]               # self.net[0] refers to the size of the first layer
+        if isSklearnScalerActivated==True:                     # (1) normalize or (2) standardize the input
+            # scaler.fit(h_train)     
+            scaler.fit(self.memory[:, 0: self.net[0]])                                
+            h_train = scaler.transform(h_train)                 
+        kernal_size = int(self.kernal_size[0])
+        h_train = h_train.reshape(-1, int(self.net[0]/kernal_size), kernal_size)
+        m_train = batch_memory[:, self.net[0]:]
+    
+        # train the DNN
+        hist = self.model.fit(x = h_train, 
+                              y = m_train,
+                            #   batch_size = self.batch_size,
+                            #   shuffle = True,
+                            #   epochs = self.epochs, 
+                              verbose=0
+                              )
+        self.cost = hist.history['loss'][0]
+        assert(self.cost > 0)
+        self.cost_his.append(self.cost)
+
+
+    def decode(self, h, k = 1, num_users = 10): 
+        '''
+        h : output of the CNN 
+        k : # of sample actions to generate
+        '''
+        
+        # to have batch dimension when feed into tf placeholder
+        h = h.reshape(num_users,-1)
+        h = h[np.newaxis, :]                # equivalent to h = h.reshape(1, num_users, -1) 
+
+        m_pred = self.model.predict(h)      # h.shape = (1, num_users, kernal_size)
+        assert np.all(m_pred >= 0) and np.all(m_pred <= 1), "m_pred must be in range (0,1)"
+
+        return (m_pred, self.gen_actions(m_pred[0], k))   # generate a list of k binary feasible actions
+    
+    
+    def knm(self, m, k = 1):
+        '''
+        return k order-preserving binary actions
+        '''
+        m_list = []
+        # generate the ﬁrst binary ofﬂoading decision 
+        m_list.append(1*(m>0.5))
+        
+        if k > 1:
+            # generate the remaining K-1 binary ofﬂoading decisions 
+            m_abs = abs(m-0.5)
+            idx_list = np.argsort(m_abs)[:k-1]
+            for i in range(k-1):
+                if m[idx_list[i]] >0.5:
+                    m_list.append(1*(m - m[idx_list[i]] > 0))
+                else:
+                    m_list.append(1*(m - m[idx_list[i]] >= 0))
+
+        return m_list
+    
+    
+    def gen_one_action(self, m):
+        '''
+        m : the probability vector (output of the CNN)
+        return one feasible offloading decision 
+        '''
+        n_users = num_users
+        limit_uav = limit_channel_UAV
+        limit_bs = limit_channel_BS
+ 
+        alpha = m[:n_users].copy()
+        idx_list = alpha.argsort()[::-1][:limit_uav]
+        alpha[:] = 0; alpha[idx_list] = 1
+            
+        beta = m[n_users:].copy()
+        if dual_connectivity == False:     # if dual connectivity is not used, one user can connect to only one MEC server at a time 
+            beta[alpha==1] = -np.inf 
+        idx_list = beta.argsort()[::-1][:limit_bs]
+        beta[:] = 0; beta[idx_list] = 1
+        if dual_connectivity == False: 
+            assert np.sum(alpha*beta) == 0, 'Dual connectivity not used: alpha and beta cannot be 1 simultaneously'
+        return np.hstack((alpha, beta)) 
+        
+        
+    def gen_actions(self, m, k):
+        m_list = []
+        m_list.append(self.gen_one_action(m))       # genererate the first action, purely based on the output of the NN  
+        if k > 1 :    # generate the remaining K-1 actions, based on balance between exploration and exploitation
+            for i in range (k-1):
+                m_list.append(self.gen_one_action( m + np.random.normal(loc=0, scale=stdvar_gen_action, size=(len(m),)) ))
+        return np.unique(m_list, axis=0) 
+    
+    
+    def opn(self, m, k= 1):
+        return self.knm(m,k) + self.knm(m+np.random.normal(0,1,len(m)),k)
+    
+    
+    def knn(self, m, k = 1):
+        # list all 2^N binary offloading actions
+        if len(self.enumerate_actions) == 0:
+            import itertools
+            self.enumerate_actions = np.array(list(map(list, itertools.product([0, 1], repeat=self.net[0]))))
+
+        # the 2-norm
+        sqd = ((self.enumerate_actions - m)**2).sum(1)
+        idx = np.argsort(sqd)
+        return self.enumerate_actions[idx[:k]]
+        
+
+    def plot_cost(self):
+        import matplotlib.pyplot as plt
+        plt.figure()    # create a figure 
+        plt.plot(np.arange(len(self.cost_his))*self.training_interval, self.cost_his)
+        plt.ylabel('Training Loss')
+        plt.xlabel('Time Frames')
+        plt.show()
+ChatGPT
+这是一个用于记忆网络的深度神经网络（DNN）类，主要用于处理大规模物联网（IoT）用户的计算任务和决策。下面是对这个网络的一些分析：
+
+网络结构：
+
+输入层：由于使用了卷积神经网络（CNN），输入形状为 (num_users, input_size)。
+卷积层：包括三个卷积层，分别具有 32、64、128 个过滤器，用于提取输入特征。
+全连接层：包括两个全连接层，具有 128 和 64 个神经元，用于组合和处理从卷积层获取的特征。
+输出层：包括 self.net[-1] 个神经元，使用 sigmoid 激活函数，输出是一个概率向量。
+训练流程：
+
+使用交叉熵损失函数进行模型编译，使用Adam优化器进行训练。
+训练数据来自存储的记忆，每隔一定的时间间隔进行训练（training_interval）。
+训练时，对输入数据进行了规范化（如果激活了isSklearnScalerActivated）。
+训练结束后，记录训练损失。
+记忆存储和学习：
+
+使用记忆网络存储过去的输入和输出。
+每隔一定时间（loss_compute_interval）计算一次测试损失，用于监视网络性能。
+学习阶段通过随机采样记忆库中的数据进行训练。
+每次学习过程记录损失。
+动作生成：
+
+通过解码（decode）网络的输出，生成二进制的可行决策。
+使用了一些方法来平衡探索和开发，通过对输出添加随机噪声。
+其他功能：
+
+提供了一些用于可视化训练损失的方法。
+总体而言，这个网络结构设计用于处理大规模物联网用户的计算任务，并通过记忆网络进行学习和决策。如果您有特定的问题或需要更详细的分析，请随时提问。
+
+User
+输出添加随机噪声是证明处理的？
+ChatGPT
+在这个上下文中，通过向输出添加随机噪声是为了在动作生成阶段引入一些探索性质。这是一种常见的做法，通常称为“探索-开发权衡”（Exploration-Exploitation Tradeoff）。
+
+在深度强化学习中，模型需要在已知的高效策略（开发）和尝试新策略以发现更好策略之间进行平衡。添加随机噪声有助于引入一些随机性，使模型有机会尝试新的、可能更优的行为。
+
+在这个特定的情境中，decode 函数中的以下部分实现了添加随机噪声：
+
+python
+Copy code
+m_list.append(self.gen_one_action(m + np.random.normal(loc=0, scale=stdvar_gen_action, size=(len(m),))))
+这里，对于生成的动作 m，通过添加正态分布的随机噪声（np.random.normal）来创建略微不同的动作。这种方式有助于模型在尝试新策略的同时，保持对当前策略的利用。
+
+User
+解释一下这个代码：import numpy as np 
+import matplotlib.pyplot as plt
+import os 
+
+from utils import *                 # Load utility functions 
+from system_paras import *          # Load system parameters 
+
+rng = np.random.default_rng()
+
+# Calculate the next position of user i, (r2,varphi2), based on the previous location,
+# (r1, varphi1), the movement direction (phi), and the freedom of movement (stddev_delta_varphi)
+def update_location(phi, r1, varphi1, stddev_delta_varphi, mean_delta_r):
+    stddev_distance = mean_delta_r/3 
+    delta_r = mean_delta_r + stddev_distance * rng.standard_normal()
+    delta_r = np.where(delta_r > 0, delta_r, 0)
+    
+    # delta_varphi = mean_delta_varphi *np.pi + stddev_delta_varphi * rng.standard_normal() # normally distributed with mean=0 and variance=(stddev_delta_varphi)**2
+    delta_varphi = (phi-varphi1) + stddev_delta_varphi * rng.standard_normal() # normally distributed with mean=(phi-varphi1) and variance=(stddev_delta_varphi)**2
+    if delta_varphi > np.pi:        # normalize so that delta_varphi in range [0,2pi]
+        delta_varphi -= 2*np.pi 
+    elif delta_varphi < -np.pi:
+        delta_varphi += 2*np.pi 
+    
+    r2 = np.sqrt( r1**2 + delta_r**2 + 2*r1*delta_r*np.cos(delta_varphi) ) 
+    
+    theta = np.arccos(  (r1**2+r2**2-delta_r**2)/(2*r1*r2) )   # angle between vectors r1 and delta_r, could be negative (i.e., a clockwise direction) 
+    varphi2 = np.where( delta_varphi>0, varphi1+theta, varphi1-theta )
+    if varphi2 > np.pi:             # normalize so that varphi in range [0,2pi]
+        varphi2 -= 2*np.pi 
+    elif varphi2 < np.pi: 
+        varphi2 += 2*np.pi
+    
+    return (r2,varphi2)
+
+
+class User:
+    def __init__(self, phi, r0, stddev_delta_varphi, varphi0, mean_delta_r): 
+        self.arrival_task = np.zeros(time_max)
+        self.qlen_thres = Mbits(1000)   # threshold for long-term average of qlen (qlen < qlen_thres), initiated as infinite 
+        
+        # Movement: location = (radius, varphi) in the cylinderic coordinate
+        self.phi = phi                      # movement direction
+        self.radius = np.zeros(time_max) 
+        self.varphi = np.zeros(time_max)
+        self.varphi[0] = varphi0            # initial varphi 
+        self.radius[0] = r0                 # initial radius  
+        self.mean_delta_r = mean_delta_r 
+        for t in range(1, time_max):
+            if isUserLocationFixed == False:
+                (r2,varphi2) = update_location(phi=self.phi, r1=self.radius[t-1], \
+                    varphi1=self.varphi[t-1], stddev_delta_varphi=stddev_delta_varphi, 
+                    mean_delta_r=self.mean_delta_r)
+                self.radius[t] = r2 
+                self.varphi[t] = varphi2
+            else: 
+                self.radius[t] = self.radius[t-1]
+                self.varphi[t] = self.varphi[t-1]
+                
+            
+        # Channel gain of the user-UAV link 
+        theta = np.arctan(uav_altitude / self.radius)       # elevation angle btw user and uav 
+        PLOS = 1/( 1 + a_LOS*np.exp( - b_LOS * ( theta - a_LOS ) ) )   # size = (time_max,)
+        fading = dB( (mean_fading_log + stddev_fading_log * rng.standard_normal(time_max)) )
+        self.channel_gain_nofading = ( PLOS + zeta_LOS*(1-PLOS) ) * g0  \
+            / ( uav_altitude**2 + self.radius**2 )**(gamma/2) 
+        self.channel_gain = self.channel_gain_nofading * fading
+        
+        
+        # Channel gain of the user-mBS link 
+        fading_BS = dB( (mean_fading_log_BS + stddev_fading_log_BS * rng.standard_normal(time_max)) )
+        self.channel_gain_BS = fading_BS * g0 / d_macroBS**gamma
+                    
+        self.cpu_frequency = np.zeros(time_max)                 
+        self.tasks_computed_locally = np.zeros(time_max)
+        self.tasks_offloaded_to_server = np.zeros(time_max)     
+        
+        self.power_local_computation = np.zeros(time_max)
+        self.power_transmit = np.zeros(time_max)
+        self.pw_total = np.zeros(time_max)
+
+        self.queue_length = np.zeros(time_max)
+        # self.queue_length[0] += 1               # at time = 0, 1 bit in queue 
+        self.vq_qlen_penalty = np.zeros(time_max)
+        # self.vq_qlen_penalty[0] += 1            # at time = 0, 1 bit in queue 
+
+
+    ##### Compute tasks locally: 
+    def opt_fcpu_local(self, t, tasks_backlog, VQ_local_i):
+        '''
+        Arguments:
+        - tasks_backlog = tasks (in the queue at the end of the previous slot) - tasks (offloaded)
+        - VQ_local = virtual queue for penalty if qlen > a specific threshold
+        Return: 
+        cpu_frequency, tasks_computed_locally, power_local_computation
+        '''
+        tasks_backlog_sum = tasks_backlog + VQ_local_i
+        cpu_freq_optimal = np.min([ np.min([fcpu_max, tasks_backlog * cycles_per_bit / slot_len]), 
+                                np.sqrt(tasks_backlog_sum*slot_len/(3*kappa*Vlyapunov*cycles_per_bit)) ])  # select the optimal cpu frequency
+        pw_computation_local  = kappa*cpu_freq_optimal**3        # power consumption for local computation 
+        tasks_computed_locally = slot_len*cpu_freq_optimal/cycles_per_bit   # update task computed locally
+        return (cpu_freq_optimal, pw_computation_local, tasks_computed_locally)
+        
+    
+    ##### Update the queue length after task computation and task offloading 
+    def update_queue(self, t): 
+        if t+1 < time_max:          # so that (t+1) <= (time_max-1)
+            self.queue_length[t+1] = self.arrival_task[t] + np.max([0, self.queue_length[t] - \
+                (self.tasks_computed_locally[t] + self.tasks_offloaded_to_server[t])])
+            self.vq_qlen_penalty[t+1] = np.max([0, self.vq_qlen_penalty[t] + scale_vq * (self.queue_length[t+1] - self.qlen_thres)])
+
+    ##### Update power consumption, note: power, not energy -> do not count slot_len 
+    def update_power(self, t):
+        self.pw_total[t] = self.power_local_computation[t] + self.power_transmit[t]  
+
+
+def gen_users():
+    pickle_fn = "users (time={t1}s, slot={t2:.2}s).pickle".format(t1=total_time, t2=slot_len, A=Amean/1e6)
+    chgain_fn = "users-channel-gain (time={t1}s, slot={t2:.2}s).png".format(t1=total_time, t2=slot_len)
+    locations_fn = "users-location (time={t1}s, slot={t2:.2}s).png".format(t1=total_time, t2=slot_len)
+    
+    if os.path.exists(os.path.join(users_folder, pickle_fn))==True:
+        import warnings
+        warnings.warn(f'Data of users existed, filepath = "{os.path.join(users_filepath, pickle_fn)}"')
+    else: 
+        users = []                  # list of users 
+        list_of_users = []          # list of users' properties 
+        for i in range(num_users):
+            r0 = rng.integers(50,150)       # initial radical distance 初始径向距离
+            varphi0 = rng.random()*2*np.pi  # initial angular coordinate 初始角坐标
+            phi = rng.random()*2*np.pi      # movement direction 移动方向
+            mean_delta_r0 = mean_velocity*slot_len
+            list_of_users.append( (r0, varphi0, phi, mean_delta_r0) )
+
+        # generate users
+        for idx, (r0, varphi0, phi, mean_delta_r) in enumerate(list_of_users):
+            users.append( User(phi=phi, r0=r0, 
+                               stddev_delta_varphi=stddev_delta_varphi, 
+                                varphi0=varphi0, 
+                                mean_delta_r=mean_delta_r
+                                ) )
+            
+        # Save data to a pickle file 
+        filepath = os.path.join(users_folder, pickle_fn)
+        save_data(users, filepath)
+        print('Generated users successfully, filepath="{}"'.format(filepath))
+        
+        # For plotting figures 
+        lines_color = ['-b', '-g', '-r', '-c', '-m', '-k']
+        lines_color_nofading = ['.b', '.g', '.r', '.c', '.m', '.k']
+        dots_color = ['ob', 'og', 'or', 'oc', 'om', 'ok']
+        n_plot = 3       # must be strictly less than len(lines_color)n_plot设置为要绘制的用户数量。
+        
+                
+        ##### Test 1 : plot radical distance ri(t) versus time 
+        # fig1 = plt.figure()
+        # for idx, user in enumerate(users):
+        #     plt.plot(range(0,time_max),user.radius,lines_color[idx], label=f"users[{idx}]") 
+        # plt.xlabel('Time')
+        # plt.ylabel('Radical distance, r(t)')
+        # plt.grid(True)
+        # # fig1.show()
+        # plt.savefig('radical distance.png')
+
+
+        ##### Test 2 : plot real-time locations of users on the ground 
+        plt.figure()    # create a figure 
+        for idx, user in enumerate(users):
+            if idx >= n_plot:
+                break
+            x = user.radius*np.cos(user.varphi)
+            y = user.radius*np.sin(user.varphi)
+            plt.plot(x, y, lines_color[idx], label=f"users[{idx}]")
+            plt.plot(x[0], y[0], dots_color[idx])
+        plt.plot(0, 0, 'ok',label=f"UAV")
+        plt.legend()
+        plt.grid(True)
+        plt.xlabel('x (m)')
+        plt.ylabel('y (m)')
+        plt.savefig(os.path.join(users_folder, locations_fn))
+
+
+        ##### Test 3 : Plotting radical distance, r_i(t), and locations of users, (x_i,y_i), wrt time  
+        # fig, (ax1,ax2) = plt.subplots(1,2)
+        # for idx, user in enumerate(users):
+        #     ax1.plot(range(0,time_max),user.radius,lines_color[idx], label=f"users[{idx}]")
+        # ax1.grid(True)
+        # ax1.set_xlabel('Time')
+        # ax1.set_ylabel('Radical distance, r(t)')
+        # for idx, user in enumerate(users):
+        #     x = user.radius*np.cos(user.varphi)
+        #     y = user.radius*np.sin(user.varphi)
+        #     # plt.plot(range(0,time_max),users[0].radius,'-r') 
+        #     ax2.plot(x, y, lines_color[idx], label=f"users[{idx}]")
+        #     ax2.plot(x[0], y[0], dots_color[idx])
+        # ax2.grid(True)
+        # ax2.set_xlabel('x (m)')
+        # ax2.set_ylabel('y (m)')
+        # fig.show()
+        # fig.savefig(dir_name + f'/location_merge.png')
+
+
+        ##### Test 4 : plotting channel gain, h_i(t) 
+        plt.figure()
+        tmax = -1
+        for idx, user in enumerate(users):
+            if idx >= n_plot:
+                break
+            plt.plot(range(0,time_max)[:tmax], to_dB(user.channel_gain[:tmax]), lines_color[idx], label=f"users[{idx}], h-UAV", linewidth=0.5) 
+            # plt.plot(range(0,time_max)[:tmax], to_dB(user.channel_gain_nofading[:tmax]), lines_color_nofading[idx], markersize=2) 
+            plt.plot(range(0,time_max)[:tmax], to_dB(user.channel_gain_BS[:tmax]), lines_color[idx], markersize=2) 
+        plt.xlabel("Time")
+        plt.ylabel('Channel gain, h(t)')
+        plt.grid(True)
+        plt.legend()
+        plt.savefig(os.path.join(users_folder, chgain_fn))
+
+
+if __name__ == "__main__":
+    gen_users()
+ChatGPT
+这段代码是用于生成模拟用户的移动轨迹和通信信道增益的。以下是对代码的主要解释：
+
+生成用户的移动轨迹：
+
+update_location 函数定义了用户位置更新的规则，包括径向距离和角度的变化。
+User 类初始化了用户的位置、移动方向、初始半径等参数，并在时间序列上模拟用户的移动。
+生成通信信道增益：
+
+theta 计算了用户与 UAV 之间的仰角。
+PLOS 计算了概率可见的 LOS（Line-of-Sight）路径。
+fading 模拟了信道的衰落，其中 mean_fading_log 和 stddev_fading_log 是衰落的均值和标准差。
+channel_gain_nofading 计算了不考虑衰落的通信信道增益。
+channel_gain_BS 计算了用户到宏基站（mBS）的通信信道增益。
+用户功耗和队列更新：
+
+opt_fcpu_local 函数根据队列的任务数量和虚拟队列（用于惩罚队列长度超过阈值的情况）的计算，选择了用户的 CPU 频率。
+update_queue 函数更新了用户的队列长度。
+update_power 函数计算了用户的总功耗。
+用户生成和数据保存：
+
+gen_users 函数用于生成一组用户，并保存相关的数据。
+数据包括用户的移动轨迹、通信信道增益以及其他相关信息。
+生成的用户信息通过 pickle 格式保存到文件。
+可视化：
+
+通过测试代码中的注释部分，可以看到几个测试示例，包括用户的径向距离、用户在地面上的实时位置、通信信道增益等的绘图。
+请注意，此代码是为了模拟系统中的用户行为和通信信道增益，以便进行后续的系统性能分析。
+
+User
+这段代码是否生成了用户的任务请求
+ChatGPT
+是的，这段代码中有用户生成任务请求的逻辑。具体而言，User 类中的 arrival_task 属性是一个数组，用于表示用户在每个时隙（slot）中到达的任务请求数量。以下是相关的代码片段：
+
+python
+Copy code
+class User:
+    def __init__(self, phi, r0, stddev_delta_varphi, varphi0, mean_delta_r): 
+        # ... 其他初始化代码 ...
+
+        self.arrival_task = np.zeros(time_max)  # 用于存储用户在每个时隙中到达的任务请求数量
+
+    # ... 其他方法和属性 ...
+
+    def update_queue(self, t): 
+        if t+1 < time_max:
+            self.queue_length[t+1] = self.arrival_task[t] + np.max([0, self.queue_length[t] - \
+                (self.tasks_computed_locally[t] + self.tasks_offloaded_to_server[t])])
+            self.vq_qlen_penalty[t+1] = np.max([0, self.vq_qlen_penalty[t] + scale_vq * (self.queue_length[t+1] - self.qlen_thres)])
+
+# ... 生成用户的部分 ...
+
+if __name__ == "__main__":
+    gen_users()
+在这里，arrival_task 数组存储了用户在每个时隙中到达的任务请求数量。在每个时隙结束后，update_queue 方法会更新用户的队列长度，考虑到已经本地计算和已经向服务器卸载的任务。
+
+User
+详细解释一下：    def update_queue(self, t): 
+        if t+1 < time_max:          # so that (t+1) <= (time_max-1)
+            self.queue_length[t+1] = self.arrival_task[t] + np.max([0, self.queue_length[t] - \
+                (self.tasks_computed_locally[t] + self.tasks_offloaded_to_server[t])])
+            self.vq_qlen_penalty[t+1] = np.max([0, self.vq_qlen_penalty[t] + scale_vq * (self.queue_length[t+1] - self.qlen_thres)])
+ChatGPT
+update_queue 方法用于更新用户的队列长度和相关的虚拟队列（virtual queue）变量。让我逐步解释这个方法：
+
+python
+Copy code
+def update_queue(self, t): 
+    if t+1 < time_max:  # 确保 (t+1) <= (time_max-1)，以避免数组越界
+        # 计算新的队列长度，考虑到新到达的任务和之前时隙中未完成的任务
+        self.queue_length[t+1] = self.arrival_task[t] + np.max([0, self.queue_length[t] - \
+            (self.tasks_computed_locally[t] + self.tasks_offloaded_to_server[t])])
+        
+        # 计算虚拟队列（VQ）的长度罚项，用于衡量队列长度是否超过某个阈值
+        self.vq_qlen_penalty[t+1] = np.max([0, self.vq_qlen_penalty[t] + scale_vq * (self.queue_length[t+1] - self.qlen_thres)])
+具体来说，这个方法中的几个变量含义如下：
+
+t: 当前时隙的索引。
+time_max: 时隙的最大数量。
+arrival_task[t]: 当前时隙到达的任务请求数量。
+queue_length[t]: 在当前时隙结束时的队列长度，考虑到新到达的任务和之前时隙中未完成的任务。
+tasks_computed_locally[t]: 在当前时隙中本地计算完成的任务数量。
+tasks_offloaded_to_server[t]: 在当前时隙中向服务器卸载的任务数量。
+vq_qlen_penalty[t]: 虚拟队列的长度罚项，用于衡量队列长度是否超过某个阈值。
+该方法的目的是模拟用户的任务处理过程，根据当前时隙的情况更新队列长度和虚拟队列罚项。这有助于用户在模拟过程中跟踪其任务队列的动态变化，并考虑队列长度对系统性能的影响。
+
+User
+请问任务是如何生成的？根据什么来生成下一阶段的任务
+ChatGPT
+在提供的代码中，任务的生成过程没有直接展示，但是可以通过理解整体模拟系统的结构来推测任务是如何生成的。
+
+从代码中可以看出，用户对象 User 中包含了一个名为 arrival_task 的数组，其长度为 time_max，用于记录每个时隙用户到达的任务请求数量。具体的任务生成逻辑可能位于模拟系统的其他部分或初始化过程中，而不是直接在用户对象中展示。
+
+在实际情况中，任务的生成通常取决于模拟的场景和需求。一般来说，可以考虑以下几种可能的任务生成方式：
+
+随机生成： 任务数量可能是随机生成的，可以根据某种概率分布生成随机数，表示用户在每个时隙到达的任务数量。
+
+周期性生成： 用户的任务到达可能按照一定的周期性规律进行，例如按小时、按天、按周等。
+
+依赖于系统状态： 任务的生成可能依赖于系统当前的状态，例如队列长度、服务器负载等。当系统负载较高时，用户可能生成更多任务。
+
+用户特定的生成规律： 每个用户可能根据其个体特性有不同的任务生成规律，例如某些用户可能更活跃，更频繁产生任务。
+
+为了确切了解任务是如何生成的，建议查看代码的其他部分或相关的文档，特别是在模拟系统初始化和用户对象创建的地方。
+
+User
+解释一下这段代码后帮我判断是否有上述提到的生成任务的相关功能：import numpy as np
+from numpy.random.mtrand import beta 
+from scipy.optimize import minimize, differential_evolution, shgo
+from scipy.optimize import Bounds, LinearConstraint, NonlinearConstraint
+from utils import *                     # Load utility functions  
+from system_paras import *              # Load system parameters
+from user import *                      # definintion of class User  
+
+
+class Server: 
+    def __init__(self, ncores = 1, nchannels = 1):   
+        self.ncores = ncores
+        self.nchannels = nchannels
+        self.uplink_alloc   = np.zeros((num_users, time_max))       # uplink bandwidth allocation  
+        self.downlink_alloc = np.zeros((num_users, time_max))       # downlink bandwidth allcoation 
+        self.qlen           = np.zeros((num_users, time_max))       # queue length, for each user 
+        self.fcpu = np.zeros((num_users, time_max))                 # cpu cycles allocated for computing each user's offloaded tasks 
+        self.pw_comput = np.zeros(time_max)                         # energy consumed for offloaded task computation 
+        self.pw_commun = np.zeros(time_max)                         # energy consumed for communication  
+        self.vq_qlen_penalty = np.zeros((num_users, time_max))      # virtual queue for penalty if qlen > a specific threshold   
+        
+    
+    def opt_task_offloading(self, Qi_vec, Li_vec, VQ_local, VQ_remote, hi_vec, hi_BS_vec, alpha, beta):
+        '''
+        Arguments: 
+        Qi_vec      : shape = (num_users,), qlen for each user 
+        Li_vec      : shape = (num_users,), remote qlen for each user
+        hi_vec      : shape = (num_users,), channel gain for each user (UAV link)
+        hi_BS_vec   : shape = (num_users,), channel gain for each user (BS link)
+        alpha       : shape = (num_users,), uplink association for the UAV link, if =1 -> the user is associated to the UAV link
+        beta        : shape = (num_users,), uplink association for the BS link, if =1 -> the user is associated to the mBS link
+
+        Retuns: 
+        offvol_opt  : shape=(num_users,), optimal offloading volume for each user
+        pTx_user    : shape=(num_users,), power consumed by the user for transmitting the offloaded task
+        bw_uav_opt  : shape = (num_users,), uplink bandwidth allocation for each user (UAV link)
+        bw_mbs_opt  : shape = (num_users,), uplink bandwidth allocation for each user (mBS link)
+        '''        
+        V = Vlyapunov 
+        tau = slot_len
+        psi = psi_user
+        
+        def find_offvol(bw_tmp, link_association, Qi, Qi_real, Li, W, h, N0):
+            '''
+            Function: find the optimal offloading volume, given a feasible solution for bw_uav and bw_mbs
+            Args: 
+                bw_tmp              : a feasible solution for bw_alloc (tmp: temporary)
+                link_association    : uplink association for the given link (fixed) 
+                Qi                  : qlen for each user, including the virtual qlen 
+                Qi_real             : the real qlen for each user, excluding the virtual qlen
+                W                   : total bandwidth of the given link (fixed)
+                h                   : channel gain for the given link (fixed)
+                N0                  : noise power for the given link (fixed)
+            Return:
+                offvol_opt          : optimal offloading volume for the given link, given bw_tmp
+            '''
+            offvol_opt = np.zeros(num_users)                    # offvol_opt: optimal setting for the offloading volume  
+            for id in range(0,num_users):
+                if link_association[id] == 1:
+                    if Qi[id] > Li[id]:   # otherwise, offvol_opt[t] = 0  as default     
+                        offvol_opt[id] = W * bw_tmp[id] * tau * \
+                            np.log2( (Qi[id]-Li[id])*W*bw_tmp[id]*tau*h[id] / (V*psi[id]*np.log(2)*N0) )
+                        assert offvol_opt[id]!=np.nan or offvol_opt[id]!=np.inf, "offvol_opt[id] is not a number"
+                else:   # Qi[id] <= Li[id]
+                    offvol_opt[id] = 0 
+            
+            # For adjustment if needed 
+            capacity = link_association*W*bw_tmp*tau*np.log2(1 + (pTx_max*h)/(N0))     # channel capacity in bits 
+            offvol_max = np.min([capacity, Qi_real], axis=0)      # equivalent: offvol_max = np.where(capacity <= Qi_vec, capacity, Qi_vec)   
+            offvol_min = link_association*W*BW_ALLOC_MIN*tau*np.log2(1 + (pTx_max*h)/(N0)) 
+            
+            # Readjust offvol_opt if needed 
+            offvol_opt = np.where(offvol_opt >= offvol_min, offvol_opt, offvol_min)  
+            offvol_opt = np.where(offvol_opt <= offvol_max, offvol_opt, offvol_max)
+            
+            return offvol_opt
+        
+        def find_bw_alloc(offvol_tmp, link_association, W, h, N0):
+            '''
+            Function: find the optimal solution for bw allocation, given a feasible solution for offvol 
+            Args: 
+                offvol_tmp      : a feasible solution for offvol (tmp: temporary), note: if link_association = 0, then offvol_tmp should be 0
+                link_association: uplink association for the UAV link or the BS link (fixed) 
+                h               : channel gain for the given link 
+                W               : total bandwidth of the given link
+                N0              : total noise of the given link
+            Return: 
+                feasible        : whether the problem with given offvol_tmp is feasible for solving bw_opt 
+                bw_opt          : optimal solution for bw allocation for the given link (UAV/mBS) 
+                lambd_opt       : optimal lambda (Langrangian multiplier) for the given link (UAV/mBS) 
+            '''
+            num_user = np.sum(link_association)   # no. of users that are associated to the link 
+            bw_min = BW_ALLOC_MIN                 # minimum for bandwidth allocation
+            bw_max = 1 - (num_user-1)*BW_ALLOC_MIN    # maximum for bandwidth allocation  
+            
+            # In the case that opt UAV link -> opt mBS link, offvol_tmp of the mBS link could be 0 
+            # In that case, if offvol_tmp[i] = 0 -> set link_association[i] = 0 
+            link_association_cp = link_association.copy()
+            link_association_cp[offvol_tmp==0] = 0 
+            
+            # Find lambd_max and lambd_min 
+            right = psi*N0*offvol_tmp*np.log(2)*2**(offvol_tmp/(W*bw_max*tau))/(h*W*tau*bw_max**2)
+            left = psi*N0*offvol_tmp*np.log(2)*2**(offvol_tmp/(W*bw_min*tau))/(h*W*tau*bw_min**2)
+            lambd_min = np.max(right[link_association_cp==1])
+            lambd_max = np.min(left[link_association_cp==1])
+            assert lambd_min>0 and lambd_max>0, "Lambda min and max should be positive"
+            
+            def solve_bw_alloc_given_lambd(lambd, offvol, h, N0):
+                '''
+                Function: find bw_opt given lambd (Langrangian multiplier)
+                Args: 
+                    lambd   : lambda (Langrangian multiplier) 
+                    offvol  : offloading volume
+                    W       : total bandwidth of the given link
+                    h       : channel gain for the given link
+                    N0      : total noise of the given link   
+                Return: 
+                    bw_opt: optimal solution for bw allocation for the given link (UAV/mBS), 
+                            by solving derivative of the Lagrangian function = 0
+                '''
+                from scipy.special import lambertw
+                bw_thres = offvol/(W*tau*np.log2(1 + (pTx_max*h)/(N0)))    # shape=(num_users,), bw_opt should be larger than bw_thres
+                bw_opt = np.zeros(num_users)
+                for i in range(num_users):
+                    if offvol[i] > 0: 
+                        a = offvol[i]*np.log(2)/(W*tau)
+                        c = lambd*h[i]*W*tau/(psi[i]*N0*offvol[i]*np.log(2))
+                        assert c > 0, "c should be positive"
+                        bw_opt[i] = np.max([a/(2*lambertw(a*np.sqrt(c)/2).real), bw_min])
+                bw_opt = np.where(bw_opt >= bw_thres, bw_opt, bw_thres)
+                
+                return bw_opt
+            
+                        
+            # Check wheher the Lagrangian equation is solvable with lambd_max 
+            # (i.e., can find a feasible solution for bw_uav so that sum(bw_alloc) <= 1))) 
+            # If not sovable with lambd_max -> terminate the WHILE loop 
+            feasible = True 
+            bw_test = solve_bw_alloc_given_lambd(lambd_max, offvol_tmp, h, N0)
+            if lambd_min > lambd_max or np.sum(bw_test) > 1: 
+                feasible = False 
+            
+            # Find the best lambd so that sum(bw_alloc) is closest to 1
+            iter_cnt = 0 
+            lambd_lb = lambd_min
+            lambd_ub = lambd_max 
+            lambd_til = 0.5*(lambd_lb+lambd_ub)
+            bw_tmp = np.zeros(num_users)
+            while(feasible==True and iter_cnt<ITERATION_MAX_lambd):    # loop until the problem is feasible and iter<iter_max 
+                lambd_til = 0.5*(lambd_lb+lambd_ub)
+                iter_cnt += 1
+                bw_tmp = solve_bw_alloc_given_lambd(lambd_til, offvol_tmp, h, N0)
+                if np.sum(bw_tmp) > 1: 
+                    lambd_lb = lambd_til
+                else: 
+                    lambd_ub = lambd_til 
+                # the constraint sum(bw)<=1 is satisfied -> break the loop  
+                if np.abs(np.sum(bw_tmp) - 1) <= epsilon_kkt_lambd: 
+                    break 
+            
+            # Readjust bw_tmp in range [bw_min, bw_max]
+            bw_opt = bw_tmp.copy()
+            for i in np.where(link_association==1)[0]:
+                bw_opt[i] = np.min([bw_tmp[i], bw_max])
+                bw_opt[i] = np.max([bw_tmp[i], bw_min])
+                
+            return (feasible, bw_opt, lambd_til) 
+        
+        def solve_GS(link_association, Qi, Qi_real, Li, W, h, N0):
+            '''
+            Use 2 functions find_offvol() and find_bw_alloc() to solve the problem for one link (UAV/mBS)
+            Parameters: 
+                link_association: uplink association for the UAV link or the BS link (fixed) 
+                Qi              : qlen for each user, including the virtual qlen 
+                Qi_real         : the real qlen for each user, excluding the virtual qlen
+                h               : channel gain for the given link 
+                W               : total bandwidth of the given link
+                N0              : total noise of the given link
+            Returns:
+                bw_opt          : optimal solution for bw allocation for the given link (UAV/mBS)
+                offvol_opt      : optimal solution for offvol for the given link (UAV/mBS)
+            '''
+            # if Qi_real=0 -> no need to solve the problem, bw_opt=any, offvol_opt=0
+            converged = True if np.all(Qi_real[link_association==1]==0) else False
+            
+            # Initiate optimal solution for offloading volume (b)
+            bw_alloc_0 = link_association/link_association.sum()         # equal bandwidth allocation for UAV link
+            offvol_0 = find_offvol(bw_alloc_0, link_association, Qi, Qi_real, Li, W, h, N0)
+            
+            def cal_fval(Qi, Li, link_association, bw_alloc, offvol, W, h, N0):
+                fval = 0 
+                for i in range(num_users):
+                    if link_association[i]==1:
+                        fval += (-1)*(Qi[i]-Li[i])*offvol[i] + V*psi[i]*(2**(offvol[i]/(W*bw_alloc[i]*tau))-1)*(N0/h[i])
+                return fval  
+            
+            # For tracking the best solution so far 
+            bw_opt = bw_alloc_0.copy()
+            offvol_opt = offvol_0.copy()
+            fval_opt = cal_fval(Qi, Li, link_association, bw_opt, offvol_opt, W, h, N0)
+            
+            iter_cnt = 0      # count the number of iterations
+            while converged==False and iter_cnt < ITERATION_MAX_GaussSeidel:
+                feasible, bw_alloc_1, lambd = find_bw_alloc(offvol_0, link_association, W, h, N0)
+                if feasible==False:
+                    break 
+                offvol_1 = find_offvol(bw_alloc_1, link_association, Qi, Qi_real, Li, W, h, N0)
+                
+                # Track the best-so-far solution 
+                fval_tmp = cal_fval(Qi, Li, link_association, bw_alloc_1, offvol_1, W, h, N0)
+                if fval_tmp < fval_opt:
+                    bw_opt = bw_alloc_1.copy(); offvol_opt = offvol_1.copy(); fval_opt = fval_tmp
+                
+                # Terminate if the solution converges
+                converged = np.allclose(bw_alloc_0, bw_alloc_1, atol=atol_bw, rtol=rtol_bw)
+                bw_alloc_0 = bw_alloc_1.copy(); offvol_0 = offvol_1.copy()
+                iter_cnt += 1
+            
+            return (fval_opt, bw_opt, offvol_opt)
+
+        # Solve the problem for all links, using the function solve_GS()
+        Qi_sum = Qi_vec + VQ_local
+        Li_sum = Li_vec + VQ_remote
+        fval_uav, bw_uav_opt, offvol_uav_opt = solve_GS(alpha, Qi_sum, Qi_vec, Li_sum, bw_total_uav, hi_vec, sigma_sq_uav)
+        fval_mbs, bw_mbs_opt, offvol_mbs_opt = solve_GS(beta, Qi_sum-offvol_uav_opt, Qi_vec-offvol_uav_opt, np.zeros(num_users), bw_total_mbs, hi_BS_vec, sigma_sq_mbs)
+        if dual_connectivity == False: 
+            assert np.sum(bw_uav_opt*bw_mbs_opt)==0, "Error: one user connect to both UAV and mBS"
+            assert np.sum(offvol_uav_opt*offvol_mbs_opt)==0, "DC not activated: one user cannot connect to both UAV and mBS at the same time"
+        assert np.sum(bw_uav_opt) <= 1+BW_ALLOC_MIN*num_users, "Error: sum(bw_uav) > 1"
+        assert np.sum(bw_mbs_opt) <= 1+BW_ALLOC_MIN*num_users, "Error: sum(bw_mbs) > 1"
+        offvol_opt = offvol_uav_opt + offvol_mbs_opt
+        
+        # calculate pTx for each user 
+        pTx_user_uav = np.zeros(num_users)
+        pTx_user_mbs = np.zeros(num_users)
+        for i in range(0,num_users): 
+            if alpha[i] == 1:
+                pTx_user_uav[i] = (2**(offvol_uav_opt[i]/(bw_total_uav * bw_uav_opt[i] * tau)) - 1) * (sigma_sq_uav) / hi_vec[i] 
+            if beta[i] == 1:
+                pTx_user_mbs[i] = (2**(offvol_mbs_opt[i]/(bw_total_mbs * bw_mbs_opt[i] * tau)) - 1) * (sigma_sq_mbs) / hi_BS_vec[i] 
+        pTx_user = pTx_user_uav + pTx_user_mbs 
+        assert np.all(pTx_user_uav <= pTx_max + 1), "pTx_user_uav > pTx_max"
+        assert np.all(pTx_user_mbs <= pTx_max + 1), "pTx_user_mbs > pTx_max"
+        
+        fval_opt = fval_uav + fval_mbs 
+        return (fval_opt, offvol_uav_opt, offvol_mbs_opt, bw_uav_opt, bw_mbs_opt, pTx_user)        # shape = (num_users,)
+        
+    
+    ##### Joint optimization for Remote Computation and Downlink Bandwidth Allocation
+    def opt_fcpu_uav(self, Li_vec, VQ_remote):
+        '''
+        Li_vec: shape = (num_users,), remote qlen for each user
+        VQ_remote: shape = (num_users,), remote virtual qlen for penalty if qlen > qlen_thres
+        '''
+        Li_sum = Li_vec + VQ_remote
+        # cpu_freq_optimal = np.min([ np.min([fcpu_core_uav_max, Li_vec * cycles_per_bit / slot_len]), 
+        #                            np.sqrt(Li_vec/(3*kappa*Vlyapunov*cycles_per_bit)) ])  # select the optimal cpu frequency
+        cpu_freq_optimal = np.sqrt(Li_sum*slot_len/(3*kappa*Vlyapunov*psi_uav*cycles_per_bit))
+        cpu_freq_ref = Li_vec * cycles_per_bit / slot_len
+        cpu_freq_ub = np.where(cpu_freq_ref <= fcpu_core_uav_max, cpu_freq_ref, fcpu_core_uav_max)
+        cpu_freq_optimal = np.where(cpu_freq_optimal < cpu_freq_ub, cpu_freq_optimal, cpu_freq_ub)
+
+        return cpu_freq_optimal
+    
+    def assign_subchannel_greedy_qlen(self, Qi_vec, Li_vec, VQ_local, VQ_remote):
+        '''
+        Args: current qlen of users 
+        Return: subchannel assignment for each user, alpha: to uav, beta: to mBS 
+        '''
+        # qlen_sum =  VQ_local + Qi_vec
+        qlen_sum =  VQ_local 
+        idx_list = qlen_sum.argsort()[::-1][:(limit_channel_UAV+limit_channel_BS)] # sorting in descending order
+        alpha = np.zeros(num_users); alpha[idx_list[:limit_channel_UAV]] = 1
+        beta = np.zeros(num_users); beta[idx_list[limit_channel_UAV:]] = 1
+        return np.hstack((alpha, beta)).reshape(1,-1)
+    
+    
+    def assign_subchannel_greedy_chgain(self, chgain_uav, chgain_mbs):
+        '''
+        Args: current chgain of users, to uav and to mBS 
+        Return: subchannel assignment for each user, alpha: to uav, beta: to mBS         
+        '''
+        idx_list_uav = chgain_uav.argsort()[::-1][:limit_channel_UAV] # indexes in descending order
+        alpha = np.zeros(num_users); alpha[idx_list_uav[:limit_channel_UAV]] = 1
+        
+        chgain_mbs_copy = chgain_mbs.copy()
+        if dual_connectivity == False: 
+            chgain_mbs_copy[idx_list_uav[:limit_channel_UAV]] = 0       # users assigned to uav cannot connect to mbs at the same time 
+        idx_list_mbs = chgain_mbs_copy.argsort()[::-1][:limit_channel_BS] # indexes in descending order
+        beta = np.zeros(num_users); beta[idx_list_mbs[:limit_channel_BS]] = 1
+        return np.hstack((alpha, beta)).reshape(1,-1)
+    
+    
+    def gen_actions_bf(self):
+        '''
+        generate all feasible actions using Brute Force methods 
+        ''' 
+        import itertools
+        brute_force = np.array(list(itertools.product([0, 1], repeat=num_users*2)))
+        # print("brute_force.shape = ", brute_force.shape)
+        n_col = brute_force.shape[1]
+        n1 = limit_channel_UAV; n2 = limit_channel_BS
+        x = brute_force[:,:n_col//2]  # shape = (64,3)
+        y = brute_force[:,n_col//2:]  # shape = (64,3)
+        filter1 = np.sum(x, axis=1) == n1   # shape = (64,)
+        filter2 = np.sum(y, axis=1) == n2   # shape = (64,)
+        filter3 = np.all(x + y <= 1, axis=1)     # shape = (64,)
+        if dual_connectivity == True:
+            filter3 = True    # deactivate filter 3 
+        bf_solutions = brute_force[filter1 & filter2 & filter3] 
+        # print("bf_solutions.shape =", bf_solutions.shape)
+        return bf_solutions
+    
+ChatGPT
+该段代码定义了一个名为Server的类，表示服务器对象。这个服务器对象具有多个属性和方法，其中一些方法涉及任务卸载和资源优化的问题。
+
+初始化方法 (__init__):
+
+__init__ 方法初始化 Server 对象的属性，包括服务器的核数 (ncores)、通道数 (nchannels)以及一些用于存储服务器状态的数组，如上行带宽分配 (uplink_alloc)、下行带宽分配 (downlink_alloc)、队列长度 (qlen) 等。
+任务卸载优化方法 (opt_task_offloading):
+
+这个方法通过调用内部函数 solve_GS 来解决远程计算和上行带宽分配的问题。
+使用一种称为高斯赛德尔迭代的方法，通过迭代优化每个用户的带宽分配，以达到最小的总能量消耗。
+solve_GS 方法通过调用 find_offvol 和 find_bw_alloc 函数来解决每个链接（UAV 和 mBS）上的问题。
+CPU频率优化方法 (opt_fcpu_uav):
+
+这个方法用于优化远程计算的 CPU 频率，以最小化总计算能耗。
+使用优化算法选择每个用户的 CPU 频率，使得远程计算的总能耗最小。
+子通道分配方法 (assign_subchannel_greedy_qlen, assign_subchannel_greedy_chgain):
+
+这两个方法用于根据队列长度或信道增益为用户分配子通道。它们使用贪婪算法，选择具有最大队列长度或最大信道增益的用户，并将其分配到特定的子通道。
+生成所有可行动作 (gen_actions_bf):
+
+这个方法使用 Brute Force 方法生成所有可行的子通道分配方案。根据系统限制，例如每个用户只能连接到一个链接，这个方法生成所有可能的二进制组合，并筛选出符合系统规定的合法组合。
+总体而言，这段代码涉及任务卸载、带宽分配和 CPU 频率优化的问题，通过不同的方法和算法来解决这些问题。具体的问题和优化目标可能需要查看调用这些方法的上层逻辑或者该类的初始化方法，以便更好地理解代码的功能。
+
+User
+解释这段代码的逻辑，并帮我查找是否有生成任务队列的相关代码：import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize, fsolve
+from keras.utils.vis_utils import plot_model
+import time as timer  
+
+
+# Self-defined modules 
+from utils import *                 # utility functions 
+from system_paras import *          # System parameters 
+from user import *                  # Load the class User 
+from server import *                # Load the class Sever
+from arrival_task import *          # Load the class ArrivalTask
+from memoryTF2conv import * 
+
+  
+''' 
+-----------------------------------------------------
+Generate tasks and users 
+-----------------------------------------------------
+''' 
+### only generate tasks and users if the files don't exist
+if new_task_generation == True: 
+    gen_tasks()       
+    gen_users()
+
+
+'''
+-----------------------------------------------------
+Initialize the neural network  
+-----------------------------------------------------
+'''
+mem = MemoryDNN(net = [num_users*kernal_size, 256, 128, num_users*2],
+                kernal_size = kernal_size,
+                learning_rate = learning_rate,
+                training_interval = training_interval,
+                batch_size = batch_size,
+                memory_size = Memory,
+                loss_compute_interval=loss_compute_interval,
+                epochs=epochs
+                )
+# export model's structure to an image
+tf.keras.utils.plot_model(mem.model, to_file="model.png", show_shapes=True) 
+# to get a summary of the model printed on the terminal 
+mem.model.summary()
+
+
+'''
+-----------------------------------------------------
+Load the neural network from json and h5 files   
+-----------------------------------------------------
+'''
+# Load the trained model: .json (the model) -> .h5 (the parameters)
+if load_pretrained_model==True: 
+    from keras.models import model_from_json
+    #这部分代码打开一个以JSON格式存储的模型结构文件（通常包括模型的体系结构和配置），将其读取到 loaded_model_json 变量中，然后关闭文件
+    json_file = open(trained_model_filepath, 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    #这一行使用 model_from_json 函数从 JSON 字符串中加载模型的结构，创建了一个新的模型对象 loaded_model
+    loaded_model = model_from_json(loaded_model_json)
+    #这部分代码加载预训练模型的权重，这些权重通常以HDF5文件的形式保存在磁盘上。模型 loaded_model 现在包括了与这些权重相关的参数
+    loaded_model.load_weights(trained_weights_filepath)    # load weights into new model
+    #这一行编译了加载的模型，指定了优化器、损失函数和评估指标。在这里，使用了 Adam 优化器、二进制交叉熵损失函数和准确度作为评估指标。
+    loaded_model.compile(optimizer=keras.optimizers.Adam(lr=learning_rate), loss=tf.losses.binary_crossentropy, metrics=['accuracy'])
+    mem.model = loaded_model 
+    print("Loaded model from", trained_model_filepath, "and", trained_weights_filepath)
+    
+if selection_mode=='learning' and load_memory == True: 
+    data_load = load_data( os.path.join(os.getcwd(), "memory.pickle") )
+    mem.memory = data_load['memory']
+    mem.memory_counter = mem.memory_size 
+
+
+''' 
+-----------------------------------------------------
+Iterate over the MEC process 
+-----------------------------------------------------
+'''  
+print("Sever selection mode: ", selection_mode)
+mode_his = []       # store the offloading mode
+k_idx_his = []      # store the index of optimal offloading actor
+users = load_data(users_filepath)     # Load users from a file 
+tasks = load_data(tasks_filepath)
+for idx, user in enumerate(users):
+    user.arrival_task = tasks.arrival_task[idx]
+    user.qlen_thres = qlen_thres_user[idx]
+server = Server(ncores=ncores)                   # Initiate the MEC server 
+
+### => generate all feasible actions for offloading decision using brute-force search  
+m_list_bf = server.gen_actions_bf()                                     
+if is_n_actions_fixed == True: 
+    n_actions = n_actions_fixed      # number of actions generated by the CNN   
+else: 
+    n_actions = int(n_actions_scale*m_list_bf.shape[0])
+    
+    
+t_start = timer.time()
+for t in range(0, time_max): 
+    Qi_vec = np.array([user.queue_length[t] for user in users])         # shape = (num_users, )获取每个用户在当前时间步骤的排队长度（队列长度）。
+    Li_vec = server.qlen[:, t].reshape(-1)                              # shape = (num_servers, )获取每个服务器在当前时间步骤的排队长度。
+    Hi_vec = np.array([user.channel_gain[t] for user in users])         # shape = (num_servers, ), channel gain of the user-UAV link取用户与 UAV 之间的通道增益。
+    Hi_BS_vec = np.array([user.channel_gain_BS[t] for user in users])   # shape = (num_servers, ), channel gain of the user-macro BS link
+    VQ_local = np.array([user.vq_qlen_penalty[t] for user in users])    # shape = (num_users, ) 每个用户的局部排队长度罚项
+    VQ_remote = server.vq_qlen_penalty[:,t].reshape(-1)                 # shape = (num_users, )获取服务器的远程排队长度罚项。
+    
+    # UAV: solve optimization problem -> update qlen and energy consumption 
+    fcpu_uav_opt = server.opt_fcpu_uav(Li_vec, VQ_remote)
+    
+    #### 1) Actor module: generate a batch of actions 生成一批可行的行动。
+    # 求解优化问题以更新 UAV 的计算资源分配 fcpu_uav_opt。生成一批可行的行动。
+    # 评估每个可行行动的回报，并选择最佳行动。记录最佳行动的 alpha_opt 和 beta_opt（带宽分配），以及相应的功耗和任务分配信息。如果在训练模型时，更新模型以记住最佳行动。
+    # scale the qlen and channel gain close to 1 
+    if is_training_model==True:
+        if isSklearnScalerActivated==False: 
+            nn_input = np.vstack( (Hi_vec*CHFACT_UAV, Hi_BS_vec*CHFACT_BS, Qi_vec*QLFACT, Li_vec*QLFACT, VQ_local*QLFACT, VQ_remote*QLFACT) ).transpose().flatten()  # like [h1, hBS1, Q1, L1, h2, hBS2, Q2, L2, ...]
+            nn_input_scale = nn_input
+        else:       #  isScalerActivated=True
+            nn_input = np.vstack( (Hi_vec, Hi_BS_vec, Qi_vec, Li_vec, VQ_local, VQ_remote) ).transpose().flatten()  # like [h1, hBS1, Q1, L1, h2, hBS2, Q2, L2, ...]
+            if t <= training_interval: 
+                nn_input_scale = np.vstack( (Hi_vec*CHFACT_UAV, Hi_BS_vec*CHFACT_BS, Qi_vec*QLFACT, Li_vec*QLFACT, VQ_local*QLFACT, VQ_remote*QLFACT) ).transpose().flatten()  # like [h1, hBS1, Q1, L1, h2, hBS2, Q2, L2, ...]
+            else: 
+                nn_input_scale = scaler.transform(nn_input[np.newaxis,:])[0]
+            
+    # generate a batch of feasible actions 
+    if selection_mode == "learning":
+        m_pred, m_list = mem.decode(nn_input_scale, n_actions, num_users=num_users)
+    elif selection_mode == "exhausted search":
+        m_pred = mem.decode(nn_input_scale, n_actions, num_users=num_users)[0]  # get the prediction of the neural network
+        m_list = m_list_bf.copy() # get all feasible actions from BF search 
+    elif selection_mode == "random":
+        m_idx = np.random.choice(len(m_list_bf))
+        m_list = m_list_bf[m_idx].copy().reshape(1,-1)       # equivalent to m_list = np.expand_dims(m_list_bf[idx], axis=0)])
+    elif selection_mode == "greedy (qlen)":
+        m_list = server.assign_subchannel_greedy_qlen(Qi_vec, Li_vec, VQ_local, VQ_remote)
+    elif selection_mode == 'greedy (chgain)':
+        m_list = server.assign_subchannel_greedy_chgain(Hi_vec, Hi_BS_vec)
+        
+    
+    r_list = []         # all results of candidate offloading actions
+    v_list = []         # the objective values of candidate offloading actions
+    for m in m_list:
+        ##### 2) Critic module: evaluate the offloading actions
+        r_list.append(server.opt_task_offloading(Qi_vec, Li_vec, VQ_local, VQ_remote, Hi_vec, Hi_BS_vec, m[:num_users], m[num_users:]))  # return (fval, b_opt, pTx_user)
+        v_list.append(r_list[-1][0])
+        
+    idx_best = np.argmin(v_list)                # index of the best offloading action
+    k_idx_his.append(idx_best)                  # record the index of the smallest reward 
+    alpha_opt = m_list[idx_best][:num_users]    # optimal action for the bw allocation of user-UAV link (alpha)
+    beta_opt = m_list[idx_best][num_users:]     # optimal action for the bw allocation of user-macro BS link (beta)
+    offvol_uav_opt = r_list[idx_best][1];       # optimal action for offloading decision for the UAV link (b), given the bandwidth allocation (m)
+    offvol_mbs_opt = r_list[idx_best][2];       # optimal action for offloading decision for the mBS link (b), given the bandwidth allocation (m)
+    bw_alloc_uav = r_list[idx_best][3]
+    bw_alloc_mbs = r_list[idx_best][4]
+    pTx_user = r_list[idx_best][5]              # optimal pTx of user, given the bandwidth allocation (m)
+    
+    ##### 3) Policy update module: update the policy
+    if is_training_model==True:
+        mem.encode(nn_input, m_list[idx_best], m_pred)  # remember the optimal action and learn if training interval have passed 
+    mode_his.append(m_list[idx_best])
+    
+    # The UAV: update states
+    if t+1 < time_max:
+        qlen = server.qlen[:,t] - fcpu_uav_opt*slot_len/cycles_per_bit 
+        server.qlen[:,t+1] = np.where( qlen >= 0, qlen, 0) + offvol_uav_opt*alpha_opt  
+        vqlen = server.vq_qlen_penalty[:,t] + scale_vq * (server.qlen[:,t+1] - qlen_thres_uav)
+        server.vq_qlen_penalty[:,t+1] = np.where( vqlen >= 0, vqlen, 0)   
+    # server.pw_commun[time] = np.sum(cal_pTx_uav(beta_vec=beta_opt, fc_vec=fcpu_uav_opt, Hi_vec=Hi_vec)) # power -> do not count slot_len 
+    # server.pw_comput[time] = server.ncores * kappa * (np.sum(fcpu_uav_opt)/server.ncores)**3            # do not count slot_len, tasks are equally shared by all cores  
+    server.pw_comput[t] =  kappa * np.sum(fcpu_uav_opt**3)            
+        
+    # Users: offload tasks to MEC server(s) following instructions given by the UAV 
+    for id, user in enumerate(users): 
+        user.tasks_offloaded_to_server[t] = offvol_uav_opt[id] + offvol_mbs_opt[id]
+        user.power_transmit[t] = pTx_user[id] 
+        
+        # Optimization for local computation at the user side 
+        tasks_backlog = user.queue_length[t] - user.tasks_offloaded_to_server[t]
+        assert tasks_backlog+1 >= 0, "Error: tasks_backlog < 0" 
+        tasks_backlog = np.where(tasks_backlog > 0, tasks_backlog, 0) 
+        fcpu_local, pw_local, task_local = user.opt_fcpu_local(t, tasks_backlog, VQ_local[id])           
+        
+        user.cpu_frequency[t] = fcpu_local 
+        user.power_local_computation[t] = pw_local         
+        user.tasks_computed_locally[t] = task_local   
+        user.update_queue(t)    # update user.queue_length[t+1] and user.vq_qlen_penalty[t+1]
+        user.update_power(t)    # update user.pw_total[t]
+    
+    
+    # Calculate moving-average of the system energy consumption   
+    energy_sys_tmp = 0 
+    rolling_interval_e = 300      
+    if t < rolling_interval_e: 
+        t0 = 0
+    else: 
+        t0 = t - rolling_interval_e
+    for id, user in enumerate(users):
+           energy_sys_tmp = energy_sys_tmp + psi_user[id]*np.mean( user.pw_total[t0:t])
+    energy_sys_tmp = energy_sys_tmp + psi_uav*np.mean(server.pw_comput[t0:t]) 
+    
+    
+    # For tracking 
+    np.set_printoptions(precision=3) 
+    scale_qlen = 1e6 
+    if t % training_interval == 0 or t == time_max-1:
+        if is_training_model == True and t >= training_interval: 
+            print("\ntime = {x}/{tmax:.0f} \ttrain loss = {y:.2f} \ttest loss = {z:.2f} \tenergy({w}) = {e:.0f} mW".format(
+                x=t, tmax=num_slots,  y=mem.cost_his[-1], z=mem.test_cost_his[-1], w=rolling_interval_e, e=energy_sys_tmp/1e-3 ))
+        else: 
+            print("\ntime = {}".format(t))
+        print('qlen_user =\t', Qi_vec/scale_qlen, 'Mb', ', average=', np.mean(Qi_vec/scale_qlen), ' Mb,', f"thres={np.mean(qlen_thres_user)/scale_qlen} Mb")
+        print('qlen_uav = \t', Li_vec/scale_qlen, 'Mb', ', average=', np.mean(Li_vec/scale_qlen), ' Mb,', f"thres={np.mean(qlen_thres_uav)/scale_qlen} Mb")
+        print('vqlen (local) = ', VQ_local/scale_qlen)
+        print('vqlen (remote) = ', VQ_remote/scale_qlen)
+            
+    if test_mode==True and t % training_interval == 0 :    
+        # print(f'\ntime = {t*slot_len}/{total_time}s, Vlya =', "{:.1e}".format(Vlyapunov), ', Amean = ', f"{Amean/scale_qlen} Mbps" )
+        print(f'\ntime = {t}/{int(num_slots)}, Vlya =', "{:.1e}".format(Vlyapunov), ', Amean = ', f"{Amean/scale_qlen} Mbps")
+        print("\tenergy(UTD) = {e:.0f} mW".format(e=energy_sys_tmp/1e-3 ))
+        print('qlen_user =\t', Qi_vec/scale_qlen, 'Mb', ', average=', np.mean(Qi_vec/scale_qlen), ' Mb,', f"thres={np.mean(qlen_thres_user)/scale_qlen} Mb")
+        print('qlen_uav = \t', Li_vec/scale_qlen, 'Mb', ', average=', np.mean(Li_vec/scale_qlen), ' Mb,', f"thres={np.mean(qlen_thres_uav)/scale_qlen} Mb")
+        print('vqlen (local) = \t', VQ_local/scale_qlen)
+        print('vqlen (remote) = \t', VQ_remote/scale_qlen)
+        task_local = np.array([user.tasks_computed_locally[t] for user in users])
+        print('tasks offloaded to uav =\t', offvol_uav_opt/scale_qlen, 'Mb,', 'sum = ', np.around(np.sum(offvol_uav_opt/scale_qlen), decimals=3), 'Mb')
+        print('tasks offloaded to mbs =\t', offvol_mbs_opt/scale_qlen, 'Mb,', 'sum = ', np.around(np.sum(offvol_mbs_opt/scale_qlen), decimals=3), 'Mb')
+        print('tasks c.locally =\t', task_local/scale_qlen, 'Mb,', 'sum = ', np.around(np.sum(task_local/scale_qlen), decimals=3), 'Mb')
+        task_remote = fcpu_uav_opt*slot_len/cycles_per_bit
+        print('tasks c.remotely =\t', task_remote/scale_qlen, 'Mb,', 'sum = ', np.around(np.sum(task_remote/scale_qlen), decimals=3), 'Mb')
+        task_arrival = np.array([user.arrival_task[t] for user in users])
+        print('task arrival =\t', task_arrival/scale_qlen, 'Mb,', 'sum = ', np.around(np.sum(task_arrival/scale_qlen), decimals=3), 'Mb')
+        
+        print('Hi (UAV)=\t', Hi_vec, 'dB')
+        print('Hi (BS) =\t', Hi_BS_vec, 'dB')
+        print('alpha (UAV) = \t', m_list[k_idx_his[-1]][:num_users], ', sum=', np.sum(m_list[k_idx_his[-1]][:num_users]))
+        print('beta (BS) = \t', m_list[k_idx_his[-1]][num_users:], ', sum=', np.sum(m_list[k_idx_his[-1]][num_users:]))
+        print('bw_alloc_uav=\t', bw_alloc_uav, 'sum=', np.sum(bw_alloc_uav))
+        print('bw_alloc_mbs=\t', bw_alloc_mbs, 'sum=', np.sum(bw_alloc_mbs))
+        fcpu_user = np.array([user.cpu_frequency[t] for user in users])
+        print('fcpu_user =\t', fcpu_user/1e9, 'GHz', ', sum=', np.around(np.sum(fcpu_user/1e9), decimals=3), 'GHz')
+        print('fcpu_uav = \t', fcpu_uav_opt/1e9, 'GHz', ', sum=', np.around(np.sum(fcpu_uav_opt/1e9), decimals=3), 'GHz')
+        
+        pw_commun_user = np.round([user.power_transmit[t]/1e-3 for user in users])
+        pw_comput_user = np.round([user.power_local_computation[t]/1e-3 for user in users])
+        print('pw_user(commun) = \t', pw_commun_user, 'mW,', 'sum =', np.sum(pw_commun_user), 'mW', ', avg=', np.mean(pw_commun_user), 'mW')
+        print('pw_user(comput) = \t', pw_comput_user, 'mW,', 'sum = ', np.sum(pw_comput_user), 'mW', ', avg=', np.mean(pw_comput_user), 'mW')
+        pw_server = kappa * fcpu_uav_opt**3
+        print('pw_uav(comput) = \t', pw_server/1e-3 , 'mW,', 'sum =', np.round(np.sum(pw_server)/1e-3), 'mW')
+        assert np.all(task_local + offvol_uav_opt + offvol_mbs_opt <= Qi_vec+1), "Error: task_local + task_offload > Qi_vec"
+        assert np.all(task_remote <= Li_vec+1), "Error: task_remote > Li_vec"
+        print('\n')
+
+run_time=timer.time()-t_start
+print("\n\nSimulation finished.")
+print("Simulation time = {t:.2f}s".format(t=run_time))
+
+
+''' 
+-----------------------------------------------------
+Calculate KPIs and plot figures for each user
+-----------------------------------------------------
+'''  
+import matplotlib.pyplot as plt 
+
+# Plot tranning loss
+if is_training_model == True: 
+    # mem.plot_cost()
+    plt.figure()    # create a figure 
+    plt.plot(np.arange(len(mem.cost_his))*mem.training_interval, mem.cost_his, '-b', label='Train Loss')
+    plt.plot(np.arange(len(mem.cost_his))*mem.training_interval, mem.test_cost_his, '-r', label='Test Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Time')
+    plt.grid(True) 
+    plt.legend()
+    plt.title(selection_mode)
+    plt.savefig(mypath + f'/train_loss.png')
+
+
+for id, user in enumerate(users):
+    Qi = user.queue_length
+    Ai = user.arrival_task
+    task_local = user.tasks_computed_locally            # tasks computed locally 
+    task_offload = user.tasks_offloaded_to_server       # tasks offloaded to server 
+    stats = [Qi,Ai,task_local,task_offload]
+
+    plt.figure()    # create a figure 
+    plt.plot(export_moving_average(Qi/1e6),label="qlen (local)")
+    plt.plot(export_moving_average(Ai/1e6),label="arrival tasks")
+    plt.plot(export_moving_average(task_local/1e6),label='local tasks')
+    plt.plot(export_moving_average(task_offload/1e6),label='offloaded tasks')  
+    plt.plot(export_moving_average(server.qlen[id,:]/1e6), label='qlen (remote)') 
+    plt.plot(export_moving_average(user.vq_qlen_penalty/1e6), label="vqlen (local)")
+    plt.plot(export_moving_average(server.vq_qlen_penalty[id,:]/1e6), label="vqlen (remote)")
+    plt.legend()
+    plt.grid(True)
+    plt.title(f"users[{id}]") 
+    plt.xlabel("time")
+    plt.ylabel("stats (in Mbits)")
+    plt.xticks(np.arange(0,time_max,step=time_max/10,dtype=int))
+    plt.title(selection_mode)
+    plt.savefig(mypath + f'/user{id}.png')
+ 
+
+''' 
+-----------------------------------------------------
+Exporting simulation results to files 
+and plot figures of moving averages of KPIs 
+-----------------------------------------------------
+'''  
+moving_window_size = 100
+
+##### Saving data
+save_data(users, os.path.join(mypath, "users.pickle"))
+save_data(server, os.path.join(mypath, "server.pickle"))
+print('Saved figures and data of each user.')  
+
+##### Save the DNN model
+if is_training_model==True:
+    model_json = mem.model.to_json()  # serialize model to JSON
+    with open(os.path.join(models_folder, "memoryTF2conv, train={x} by {mode}.json".format(x=total_time, mode=selection_mode)), "w") as json_file:
+        json_file.write(model_json)
+    mem.model.save_weights(os.path.join(models_folder, "memoryTF2conv, train={x} by {mode}.h5".format(x=total_time, mode=selection_mode))) # serialize weights to HDF5
+    print("Saved the trained model.")
+        
+    # export the memory 
+    data = {'memory': mem.memory}
+    save_data(data, os.path.join(mypath, "memory.pickle"))
+    print(f"Saved the memory for training to a pickle file.")
+
+
+# Plot moving averages of KPIs
+Qlen_users = np.array([user.queue_length for user in users]).reshape(num_users,-1)  # shape = (num_uer, time_max)
+Qlen_uav = server.qlen.reshape(num_users,-1) # shape = (num_uer, time_max)
+Energy_users = np.array([user.pw_total for user in users]).reshape(num_users,-1)  # shape = (num_uer, time_max)
+Energy_uav = (server.pw_commun + server.pw_comput) # shape = (time_max,)
+Energy_sys = np.sum(psi_user.reshape(num_users,1)*Energy_users, axis=0) + psi_uav*Energy_uav # shape = (time_max,)
+vqlen_local = np.array([user.vq_qlen_penalty for user in users]).reshape(num_users,-1)  # shape = (num_uer, time_max)
+vqlen_remote = server.vq_qlen_penalty.reshape(num_users,-1) # shape = (num_uer, time_max)
+plot_moving_average(np.mean(Qlen_users, axis=0)/1e6, rolling_intv=moving_window_size, ylabel='Average Data Queue of Users, Qi (Mb)', filepath=mypath, title=selection_mode)
+plot_moving_average(np.mean(Qlen_uav, axis=0)/1e6, rolling_intv=moving_window_size, ylabel='Average Data Queue of UAV, Li (Mb)', filepath=mypath, title=selection_mode)
+plot_moving_average(np.mean(Energy_users, axis=0)/1e-3, rolling_intv=moving_window_size, ylabel='Average Energy Consumption of Users, Ei (mW)', filepath=mypath, title=selection_mode)
+plot_moving_average(Energy_uav/1e-3, rolling_intv=moving_window_size, ylabel='Average Energy Consumption of UAV, Euav (mW)', filepath=mypath, title=selection_mode)
+plot_moving_average(Energy_sys/1e-3, rolling_intv=moving_window_size, ylabel='Average Energy Consumption of System (Weighted Sum), Esys (mW)', filepath=mypath, title=selection_mode)
+plot_moving_average(np.mean(vqlen_local, axis=0)/1e6, rolling_intv=moving_window_size, ylabel='Average VQlen of Users, vqlen_local (Mb)', filepath=mypath, title=selection_mode)
+plot_moving_average(np.mean(vqlen_remote, axis=0)/1e6, rolling_intv=moving_window_size, ylabel='Average VQlen of UAV, vqlen_remote (Mb)', filepath=mypath, title=selection_mode)
+print('Plotted figures of moving averages of KPIs.')
+
+
+# Export moving averages of KPIs to a pickle file 
+data = {'Qlen_users (Mb)': Qlen_users/1e6, 
+        'Qlen_uav (Mb)': Qlen_uav/1e6, 
+        'Energy_users (mW)': Energy_users/1e-3, 
+        'Energy_uav (mW)': (Energy_uav/1e-3).reshape(1,-1), 
+        'Energy_sys (mW)': (Energy_sys/1e-3).reshape(1,-1),
+        'VQlen_local (Mb)': vqlen_local/1e6,
+        'VQlen_remote (Mb)': vqlen_remote/1e6
+        }
+save_data(data, os.path.join(mypath, "{x}.pickle".format(x=dir_name)))
+print(f'Exported moving averages of KPI to a pickle file')
+
+
+# Export system parameters to a text file (metadata) 
+metadata={
+    "num of slots": int(num_slots), 
+    "slot duration (s)": slot_len,
+    "num of users" : num_users, 
+    "bandwidth (MHz)" : bw_uplink/1e6, 
+    "limit channel of UAV": limit_channel_UAV, 
+    "limit channel of mBS": limit_channel_BS, 
+    "Arrival rate (Mbps)": Amean/1e6, 
+    "task model": task_mode,
+    "fcpu_max of user (GHz)": fcpu_max/1e9,
+    "fcpu_max of one core of UAV (GHz)": fcpu_core_uav_max/1e9, 
+    "Vlya (dB)": to_dB(Vlyapunov),
+    "psi_uav": psi_uav, 
+    "psi_user": psi_user, 
+    "qthres for user (kb)": qlen_thres_user/1e3, 
+    "qthres for uav (kb)": qlen_thres_uav/1e3, 
+    "learning rate": learning_rate, 
+    "num of actions": n_actions,
+    "training interval": training_interval,
+    "memory size": Memory, 
+    "batch size": batch_size, 
+    "std_var for generating actions": stdvar_gen_action, 
+    "server selection mode" : selection_mode, 
+    "dual connectivity": dual_connectivity, # True/False  
+    "runtime (sec)": run_time   # simulation time in seconds 
+}
+
+with open(os.path.join(mypath, "system_parameters.txt"), 'w') as f: 
+    for key, value in metadata.items(): 
+        f.write('%s: %s\n' % (key, value)) 
+        
+
+print(f'Exported meta data to a txt file.')
+print(f'Folder path: "{mypath}"')
+ChatGPT
+这段代码是一个模拟移动边缘计算（MEC）系统的Python脚本，使用了深度强化学习（DRL）来进行决策。以下是代码的逻辑概述：
+
+导入模块：导入了必要的库和自定义模块，包括NumPy、Matplotlib、SciPy、Keras等。
+
+生成任务和用户：通过gen_tasks和gen_users函数生成任务和用户，仅在new_task_generation为True时执行。
+
+初始化神经网络：使用自定义的MemoryDNN类初始化神经网络，定义了网络的结构和超参数，并将模型结构保存为图片。
+
+加载预训练模型：如果load_pretrained_model为True，从存储的JSON文件和权重文件中加载预训练模型。
+
+迭代MEC流程：主要包括以下步骤：
+
+生成所有可行的行动（m_list_bf）。
+进行MEC过程的迭代，包括UAV优化、Actor模块（生成一批可行的行动）、Critic模块（评估行动）、Policy Update模块（更新策略）等。
+更新UAV和用户的状态，计算系统的能耗。
+在训练模型的情况下，更新模型。
+计算KPIs和绘制图表：在模拟结束后，计算并绘制一些关键性能指标（KPIs），包括系统能耗、用户排队长度等。同时，保存模拟结果和绘制的图表。
+
+导出模拟结果和图表：保存用户、服务器、DNN模型、模拟结果等数据，以及绘制的图表，用于进一步分析和可视化。
+
+总体而言，代码的核心是一个MEC系统的模拟，其中使用了深度强化学习（DRL）来进行决策，包括Actor-Critic模型的训练和使用。与此同时，代码还包括了对模拟结果的分析和可视化。如果你有特定的问题或需要深入了解代码中的某些部分，请提出具体问题。
+
+User
+这段是任务到达的生成代码，请i帮我解释这段代码：import numpy as np 
+from utils import *                 # Load utility functions 
+from system_paras import * 
+
+rng = np.random.default_rng()
+
+class ArrivalTask:
+    def __init__(self, Amean_vec, num_users, time_max, slot_len) -> None:
+        '''
+        Amean_vec: average arrival rate of tasks in one second, shape = (num_users,)
+        '''
+        self.Amean_vec = Amean_vec  #是一个一维数组，表示每个用户在一秒内平均到达的任务数量。            # shape = (num_users,)
+        self.num_users = num_users   #表示用户的数量
+        self.time_max = time_max   #表示时间步的最大值
+        self.slot_len = slot_len   #表示时间槽的长度
+        if task_mode == 'gaussian':
+            #使用正态分布来近似泊松分布，生成随机的任务到达数据。 arrpox. Poisson as Normal dist. since lambda is large (>=100)
+            scale = 1e6
+            mean_sc = np.expand_dims(Amean_vec, axis=1)*slot_len/scale # in kBits
+            stddev_kB = np.sqrt(mean_sc) 
+            arrival_task = (mean_sc + stddev_kB * rng.standard_normal((num_users, time_max)))*scale
+            # 生成一个形状为 (num_users, time_max) 的随机数数组，服从标准正态分布（均值为0，标准差为1）。
+            self.arrival_task = np.where(arrival_task>0, arrival_task, 1)#函数将任务到达数据中小于等于0的值替换为1，确保任务到达数据非负
+        elif task_mode == 'uniform':
+            #在指定的范围内生成均匀分布的任务到达数据。
+            self.arrival_task = rng.uniform(low=0, high=np.mean(Amean_vec*slot_len)*2, size=(num_users, time_max))
+        
+        elif task_mode == 'poisson': 
+            ld = 5 # average number of envents in an interval (e.g., a time frane) 表示一个时间间隔（例如一个时间帧）内的平均事件数量
+            task_arrivals = np.zeros((num_users, time_max))
+            arrival_per_event = Amean_vec*slot_len/ld  # assuming that the arrival workload per event is   计算每个事件的到达工作量。这里假设每个事件的到达工作量是均匀的。
+            for i in range(num_users): 
+                task_arrivals[i,:] = arrival_per_event[i] * rng.poisson(lam=ld, size=(time_max,))    
+            self.arrival_task = task_arrivals 
+        
+        
+def gen_tasks():
+    '''
+    gen_tasks 函数用于生成任务到达数据并保存到文件中。
+    根据任务模式、总时间、时间槽长度等参数生成文件名。
+    如果文件已存在，则发出警告。
+    否则，调用 ArrivalTask 类生成任务到达数据，并保存到文件中
+    '''
+    filename = "tasks, {task_mode}, Amean={A:.1f}-{B:.1f} Mbps, (time={t1}s, slot={t2:.2}s).pickle".format(t1= total_time, t2=slot_len, A=np.min(Amean_vec/1e6), B=np.max(Amean_vec/1e6), task_mode=task_mode)
+    filepath = os.path.join(tasks_folder, filename)
+    if os.path.exists(filepath)==True:
+        import warnings
+        warnings.warn(f'Data of arrival tasks existed, filepath="{filepath}"')
+    else:
+        tasks = ArrivalTask(Amean_vec=Amean_vec, num_users=num_users, time_max= time_max, slot_len= slot_len)
+        save_data(tasks, filepath)
+        print(f'Generated tasks successfully, filepath="{filepath}"')
+
+
+if __name__ == "__main__":
+    gen_tasks()
+ChatGPT
+This code is written in Python and is used to generate synthetic task arrival data based on different modes: 'gaussian', 'uniform', or 'poisson'. Let's break down the code step by step:
+
+Importing Libraries:
+
+python
+Copy code
+import numpy as np 
+from utils import *                 # Load utility functions 
+from system_paras import * 
+Imports the NumPy library for numerical operations.
+Imports utility functions from a file named utils.
+Imports system parameters from a file named system_paras.
+Setting up Random Number Generator:
+
+python
+Copy code
+rng = np.random.default_rng()
+User
+使用中文回答
+ChatGPT
+这段代码用于生成合成的任务到达数据，基于不同的模式：'gaussian'（高斯）、'uniform'（均匀）、'poisson'（泊松）。让我们逐步解释代码：
+
+导入库:
+
+python
+Copy code
+import numpy as np 
+from utils import *                 # Load utility functions 
+from system_paras import * 
+导入NumPy库进行数值操作。
+从名为 utils 的文件中导入实用函数。
+从名为 system_paras 的文件中导入系统参数。
+设置随机数生成器:
+
+python
+Copy code
+rng = np.random.default_rng()
+使用NumPy初始化一个随机数生成器。
+定义任务到达类:
+
+python
+Copy code
+class ArrivalTask:
+    def __init__(self, Amean_vec, num_users, time_max, slot_len) -> None:
+    # ...
+定义了一个类 ArrivalTask，用于表示任务到达的属性和行为。
+任务到达数据的生成:
+
+python
+Copy code
+if task_mode == 'gaussian':
+    # ...
+elif task_mode == 'uniform':
+    # ...
+elif task_mode == 'poisson': 
+    # ...
+根据 task_mode 的值，选择不同的任务到达数据生成方式。
+'gaussian' 模式下，使用正态分布来近似泊松分布，生成随机的任务到达数据。
+'uniform' 模式下，在指定的范围内生成均匀分布的任务到达数据。
+'poisson' 模式下，使用泊松分布生成任务到达数据。
+任务生成函数:
+
+python
+Copy code
+def gen_tasks():
+    # ...
+定义了一个生成任务到达数据的函数 gen_tasks()。
+生成文件名，包含任务模式、总时间、时间槽长度等参数。
+如果文件已存在，则发出警告，否则调用 ArrivalTask 类生成任务到达数据，并保存到文件中。
+主程序入口:
+
+python
+Copy code
+if __name__ == "__main__":
+    gen_tasks()
+如果这个脚本是直接运行而不是被导入到其他脚本中，就调用 gen_tasks() 函数生成任务到达数据。
+User
+我的理解是这段代码是对任务生成，使用简单分布来模拟任务到达的情况，我希望这个情况更加现实。首先我想对任务分类，分类成计算类任务、综合性任务、通信型任务等，由于我想设计LSTM网络来预测未来一段时间不同任务序列，我需要先生成我的样本序列，你觉得我应该如何生成我的样本序列？
+ChatGPT
+如果你想生成更加现实的任务样本序列，并且要考虑到任务的不同类型（计算类、综合性任务、通信型任务等），以下是一些建议：
+
+任务类型定义：
+
+定义不同任务类型的特征。例如，计算类任务可能有不同的计算需求，通信型任务可能需要更多的数据传输，综合性任务可能包含多个子任务的组合。
+生成任务类型序列：
+
+针对每个用户或设备，为其生成一个任务类型序列。这个序列可以是一个时间序列，表示在不同时间点上执行的任务类型。
+任务参数设置：
+
+对于每个任务类型，设置相应的参数，如计算任务的计算量、综合性任务的子任务组成、通信任务的数据传输量等。
+时序关系建模：
+
+如果你计划使用LSTM网络，考虑在任务序列中捕捉时序关系。LSTM是一种适用于时序数据的循环神经网络，能够学习到任务序列中的时间依赖关系。
+生成任务数据：
+
+根据任务类型序列和相应的参数，生成每个时间步的任务数据。这可以包括任务到达率、计算量、通信量等信息。
+数据标签：
+
+对于监督学习，你需要相应的标签。标签可以是未来时间步的任务数据，或者是某个任务执行的性能指标（例如，任务完成时间、资源利用率等）。
+样本集合生成：
+
+将生成的任务数据和相应的标签组成样本集合，用于训练和评估LSTM模型。
+下面是一个简化的示例代码，其中假设有三种任务类型，每个用户有一个任务类型序列：
+
+python
+Copy code
+import numpy as np
+
+# 定义任务类型
+task_types = ['compute', 'synthesize', 'communicate']
+
+# 生成用户任务类型序列
+def generate_task_sequence(num_users, sequence_length):
+    return np.random.choice(task_types, size=(num_users, sequence_length))
+
+# 生成任务数据
+def generate_task_data(task_sequence):
+    task_data = {}
+    for task_type in task_types:
+        # 根据任务类型生成相应的任务数据
+        if task_type == 'compute':
+            task_data[task_type] = np.random.uniform(1, 10, size=task_sequence.shape)
+        elif task_type == 'synthesize':
+            task_data[task_type] = np.random.uniform(0, 5, size=task_sequence.shape)
+        elif task_type == 'communicate':
+            task_data[task_type] = np.random.uniform(0, 8, size=task_sequence.shape)
+    return task_data
+
+# 生成样本数据
+def generate_samples(num_users, sequence_length):
+    task_sequence = generate_task_sequence(num_users, sequence_length)
+    task_data = generate_task_data(task_sequence)
+    labels = np.random.uniform(0, 1, size=(num_users, sequence_length))  # Placeholder for labels
+    return task_data, labels
+
+# 示例用法
+num_users = 100
+sequence_length = 10
+task_data, labels = generate_samples(num_users, sequence_length)
+这个示例代码演示了如何生成包含不同任务类型的任务数据，并且可以用于训练LSTM网络。请根据你的具体需求和任务类型定义进一步调整。
+
+User
+我希望把这三种任务通过某种分布聚合后生成 一个任务队列，因为这样更加科学，服务器就能学会哪些时刻可能会出现哪些任务，你觉得我应该如何实现
+ChatGPT
+如果你希望通过某种分布将三种不同类型的任务聚合成一个任务队列，你可以考虑以下方法：
+
+任务类型分布定义：
+
+为每种任务类型定义一个概率分布。这可以是一个离散分布，表示每种任务类型在队列中出现的概率。
+生成任务类型序列：
+
+根据定义的概率分布，为每个时间步生成一个任务类型。可以使用numpy的np.random.choice函数来根据概率生成任务类型。
+生成任务数据：
+
+对于每个生成的任务类型，根据相应的任务类型生成任务数据。你可以使用之前提到的生成任务数据的方法。
+时序关系建模：
+
+如果需要考虑时序关系，可以将生成的任务数据按时间步进行排序，并按顺序组成任务队列。
+下面是一个简化的示例代码，演示了如何根据概率分布生成任务队列：
+
+python
+Copy code
+import numpy as np
+
+# 定义任务类型和相应的概率分布
+task_types = ['compute', 'synthesize', 'communicate']
+task_probabilities = [0.4, 0.3, 0.3]
+
+# 生成任务类型序列
+def generate_task_queue(sequence_length):
+    return np.random.choice(task_types, size=sequence_length, p=task_probabilities)
+
+# 生成任务数据
+def generate_task_data(task_type):
+    task_data = {}
+    # 根据任务类型生成相应的任务数据
+    if task_type == 'compute':
+        task_data[task_type] = np.random.uniform(1, 10)
+    elif task_type == 'synthesize':
+        task_data[task_type] = np.random.uniform(0, 5)
+    elif task_type == 'communicate':
+        task_data[task_type] = np.random.uniform(0, 8)
+    return task_data
+
+# 生成任务队列
+def generate_task_queue_data(sequence_length):
+    task_queue = generate_task_queue(sequence_length)
+    task_queue_data = [generate_task_data(task_type) for task_type in task_queue]
+    return task_queue_data
+
+# 示例用法
+sequence_length = 10
+task_queue_data = generate_task_queue_data(sequence_length)
+这个示例代码演示了如何生成一个任务队列，其中包含了三种不同类型的任务，根据定义的概率分布生成任务类型。请根据你的需求调整任务类型和概率分布。这样生成的任务队列可以用于训练LSTM网络，以学习任务类型之间的时序关系。
+
+User
+由于LSTM对具有时序关系的样本能够处理，简单的通过某种分布集合上面三种分布我认为没有了时许性，LSTM的预测效果可能不好，你能帮我设计一种方法，使得上述队列满足某种时序性要求吗
+ChatGPT
+理解你的需求了。如果你想要在任务队列中引入一定的时序性，可以考虑以下几种方法：
+
+引入任务持续时间：
+
+为每个任务类型引入一个持续时间，表示每个任务需要执行的时间。这样，你可以确保相同类型的任务在时间轴上具有一定的时序关系。
+引入任务关联性：
+
+考虑任务之间的关联性，例如，某些任务可能倾向于在另一些任务之后发生。你可以通过定义任务之间的概率关系来实现这一点。
+引入季节性或周期性：
+
+如果你的应用场景具有季节性或周期性，可以考虑引入这些模式。例如，某些任务可能在一天中的特定时段更有可能发生。
+以下是一种简化的方法，引入任务持续时间：
+
+python
+Copy code
+import numpy as np
+
+# 定义任务类型和相应的概率分布
+task_types = ['compute', 'synthesize', 'communicate']
+task_probabilities = [0.4, 0.3, 0.3]
+
+# 生成任务类型序列
+def generate_task_queue(sequence_length):
+    return np.random.choice(task_types, size=sequence_length, p=task_probabilities)
+
+# 为每个任务类型引入持续时间
+task_durations = {'compute': 3, 'synthesize': 2, 'communicate': 4}
+
+# 生成任务数据
+def generate_task_data(task_type):
+    task_data = {}
+    # 引入任务持续时间
+    task_data['duration'] = task_durations[task_type]
+    # 根据任务类型生成相应的任务数据
+    if task_type == 'compute':
+        task_data['resource'] = np.random.uniform(1, 10)
+    elif task_type == 'synthesize':
+        task_data['resource'] = np.random.uniform(0, 5)
+    elif task_type == 'communicate':
+        task_data['resource'] = np.random.uniform(0, 8)
+    return task_data
+
+# 生成任务队列
+def generate_task_queue_data(sequence_length):
+    task_queue = generate_task_queue(sequence_length)
+    task_queue_data = [generate_task_data(task_type) for task_type in task_queue]
+    return task_queue_data
+
+# 示例用法
+sequence_length = 10
+task_queue_data = generate_task_queue_data(sequence_length)
+在这个示例中，每个任务类型都有一个持续时间，以确保任务队列中的任务具有一定的时序性。你可以根据需要进一步调整任务类型、概率分布和持续时间。这种方法可以使得生成的任务队列更贴近实际情况，有助于LSTM网络学习到更有意义的时序关系。
+
+User
+帮我设计一个场景：某个资源受限的场地，使用无人机辅助边缘计算，这个地区请求的任务类型会变化，请你帮我设计是怎么样的情况导致用户请求的任务类型发生变化？资源受限的意思可能是 演唱会等人流突然增多 也有可能是受灾地区的通信
+ChatGPT
+!
+理解了，你想要设计一个场景，在某个资源受限的地区，用户请求的任务类型会发生变化。这个场景可以包括以下因素：
+
+人流变化：
+
+当人流量突然增多时，可能会引起用户请求任务类型的变化。例如，在演唱会等大型活动期间，用户可能更倾向于发送与通信相关的任务（例如直播、社交媒体分享等）。
+灾害情况：
+
+在灾难性事件发生时，例如地震、洪水等，用户可能更需要紧急通信或求助任务。这可能导致任务类型从普通通信任务转变为紧急任务。
+能源限制：
+
+如果该地区存在能源限制，可能会导致用户更倾向于发送计算或通信负担较小的任务，以减少能源消耗。
+网络负载：
+
+当网络负载较高时，用户可能更关注通信任务的可靠性，而不是计算密集型任务。
+基于这些因素，你可以设计一个简单的场景，例如：
+
+假设在一个地区，有两种模式：平常模式和紧急模式。
+
+平常模式：
+
+人流较平稳，通信任务和计算任务请求均匀分布。
+任务类型包括普通通信、计算密集型任务等。
+紧急模式：
+
+当地发生灾难性事件（例如地震）或者在演唱会等大型活动期间，系统切换到紧急模式。
+任务类型重点转向紧急通信、紧急计算等，以满足紧急需求。
+这个场景可以通过在代码中引入模式切换的逻辑来模拟。你可以根据特定条件触发切换到紧急模式，然后调整任务的分布和类型。例如：
+
+python
+Copy code
+class DynamicTaskGenerator:
+    def __init__(self, normal_mode=True):
+        self.normal_mode = normal_mode
+        self.task_types = ['communication', 'computation', 'emergency']
+
+    def generate_task(self):
+        if self.normal_mode:
+            return np.random.choice(self.task_types[:-1])  # Exclude 'emergency' in normal mode
+        else:
+            return np.random.choice(self.task_types)
+    
+    def switch_to_emergency_mode(self):
+        self.normal_mode = False
+在这个示例中，DynamicTaskGenerator 类具有两种模式，正常模式和紧急模式。在正常模式下，生成的任务类型主要包括通信和计算；在紧急模式下，生成的任务类型包括通信、计算和紧急任务。你可以根据场景中的实际需要，触发模式切换的条件。
